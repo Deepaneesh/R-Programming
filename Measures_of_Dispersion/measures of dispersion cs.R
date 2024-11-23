@@ -1,0 +1,13 @@
+measure_of_dispersion=function(x,f){
+  data=rep(x,f)
+  range=max(data)-min(data)
+  variance=var(data)*(length(data)-1)/(length(data))
+  standard_deviation=variance**(1/2)
+  c.v=standard_deviation/mean(data)
+  result=c('Range'=round(range,4),'variance'=round(variance,4),'S.D'=round(standard_deviation,4),'c.v'=round(c.v,4))
+  return(result)
+}
+x=c(0,1,2,3,4,7)
+x
+f=c(1,3,7,14,8,2)
+measure_of_dispersion(x,f)
