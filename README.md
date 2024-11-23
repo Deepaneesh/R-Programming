@@ -1,6 +1,6 @@
 ### **R Programming**
 
-#### **1.Day_of_the_Date**
+#### **1.Day_of_the_date**
 
 - In this folder , i created the code for finding the day of the date by using R programming
 
