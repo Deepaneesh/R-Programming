@@ -2,7 +2,7 @@
 
 #### **Day_of_the_date**
 
--   In this folder , i created the code for finding the day of the date by using R programming
+-   In this folder , I created the code for finding the day of the date by using R programming
 
 -   In R programming there is a function to find the day of the date . It is already in the package **Lubridate**
 
