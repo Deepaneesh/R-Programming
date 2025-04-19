@@ -5,6 +5,7 @@ association_Matrix_for_Categorical_data <- function(x) {
   require(lsr)
   require(reshape2)
   require(viridis)
+  require(plotly)
   
   result_df <- data.frame(
     Variable1 = character(),
@@ -50,8 +51,9 @@ association_Matrix_for_Categorical_data <- function(x) {
     theme(axis.text.x = element_text(angle = 45, hjust = 1),
           axis.text.y = element_text(angle = 45, hjust = 1),
           plot.title = element_text(face = "bold", size = 12, hjust = 0.5))
+  plotlygraph= ggplotly(graph1)
   
-  return(list(result_df = result_df, graph1 = graph1))
+  return(list(result_df = result_df, graph1 = graph1, plotlygraph = plotlygraph))
 }
 # Sample categorical dataset
 example_data <- data.frame(
@@ -70,3 +72,4 @@ result <- association_Matrix_for_Categorical_data(example_data)
 # View results
 result$result_df  # Table with p-values and Cramer's V
 result$graph1     # Heatmap plot
+result$plotlygraph # Interactive plot
