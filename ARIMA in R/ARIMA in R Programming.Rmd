@@ -1,0 +1,337 @@
+---
+title: "ARIMA in R Programming"
+author: "Deepaneesh R V"
+date: "2025-02-25"
+output: 
+ pdf_document:
+   toc: yes
+   toc_depth: 4
+   number_sections: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+\newpage
+
+# Packages
+
+I am using several packages in R for time series analysis.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(forecast)
+library(tseries)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+```
+
+# ARIMA
+
+ARIMA (AutoRegressive Integrated Moving Average) is a popular time series forecasting model that combines three key components:
+
+1.  **AR (AutoRegressive - p):**
+
+-   Uses past values (lags) of the time series to predict future values.
+-   Example: If p=2, the model uses the last two values to predict the next one.
+
+2.  **I (Integrated - d):**
+
+-   Uses differencing of the time series to make it stationary.
+-   Example: If d=1, the model uses the difference between the current value and the previous one to predict the next one.
+
+3.  **MA (Moving Average - q):**
+
+-   Uses the residual errors from past predictions to predict future values.
+-   Example: If q=2, the model uses the last two residual errors to predict the next one.
+
+\newpage
+
+# Data
+
+We will use the AirPassengers dataset from the forecast package created by Rob J. Hyndman. This dataset contains the number of international airline passengers from 1949 to 1960. The data is recorded monthly and has a frequency of 12.
+
+```{r tsdata, echo=TRUE, message=FALSE, warning=FALSE}
+library(forecast)
+library(tseries)
+timedata= ts(AirPassengers, frequency = 12,start = c(1949,1))
+
+```
+
+## Ploting the data
+
+```{r plot, echo=TRUE, message=FALSE, warning=FALSE}
+library(ggplot2)
+autoplot(timedata)+
+  labs(title="Airpassangers")+
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+
+```
+
+The plot indicates an increasing trend with seasonality present. Therefore, we will use the Augmented Dickey-Fuller test to check for stationarity.
+
+\newpage
+
+## Checking for Stationarity
+
+Null Hypothesis(H0): The data is non-stationary
+
+Alternate Hypothesis(H1): The data is stationary
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Checking for stationary 
+adf.test(timedata)
+```
+
+the p value is less than 0.05, so the data is stationary.
+
+using the decompose function to decompose the time series into trend, seasonality, and residuals.
+
+## Decomposing the time series
+
+With the help of the above charts, we can easily see the trend. Seasonal variations are increasing over time, so we can say that the data is multiplicative in nature.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Decomposing the time series
+decompose(timedata,type = "multiplicative") %>% plot()
+```
+
+Using the STL function to decompose the time series into trend, seasonality, and residuals is within the limits or not.
+
+## STL Decomposition
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+stl(timedata, s.window="periodic") %>% plot()
+```
+
+The error bars in the data and trend component are not within the limits; therefore, we can conclude that the data is multiplicative in nature and is well-fitted for multiplicative decomposition.
+
+\newpage
+
+# Checking for Seasonal and Trend in the data
+
+Analyzing the data for seasonality and trends using the ggseasonplot and ggsubseriesplot functions.
+
+## Seasonality Checking
+
+Let’s create a line graph for each year, breaking it down by month! This will help us see if there are any seasonal trends.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+ggseasonplot(timedata)+
+  labs(title="Seasonality of Airpassangers")+
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+```
+
+The plot indicates that the data exhibits seasonality, as it consistently increases in July and decreases in November. To further analyze this, we can use a circular or polar chart; if the circle shifts in any direction, it suggests that there is a seasonal variation in the data.
+
+\newpage
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+ggseasonplot(timedata,polar = T)+
+  labs(title="Seasonality of Airpassangers")+
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+```
+
+The chart vividly illustrates that the data showcases a distinct seasonality, with a notable peak around July. This fascinating trend highlights how certain patterns can emerge within the data, making July a month of particular interest.
+
+\newpage
+
+# Computing Arima Model
+
+Based on the charts and analysis above, we can conclude that the data is stationary, multiplicative in nature, and exhibits seasonality. Therefore, we can compute the ARIMA model.
+
+## ACF Plot
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# ACF and PACF plots
+ggAcf(timedata)+
+  labs(title="ACF plot of Airpassangers")+
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+```
+
+the above plot shows that the model is Moving Average (MA) model. (q=0)
+
+\newpage
+
+## PACF Plot
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+ggPacf(timedata)+
+  labs(title="PACF plot of Airpassangers")+
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+```
+
+the above chart shows that the model have autoregressive (AR) model (p=1)
+
+\newpage
+
+## Auto ARIMA
+
+using the auto arima function to compute the ARIMA model with the help of AIC and BIC values.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+#  Auto ARIMA
+model =auto.arima(timedata,ic=("bic"),seasonal = T)
+model
+summary(model)
+```
+
+the auto arima choose the best model by using aic and bic values
+
+\newpage
+
+## Forecasting
+
+forecasting for next 24 months using the forecast function.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+future=forecast(model,h=24)
+future
+```
+
+ploting the forecasted data using the autoplot function.
+
+\newpage
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+autoplot(future)+
+  labs(title="Forecasting Airpassangers")+
+  theme(plot.title = element_text(hjust=0.5,face="bold"))+
+  labs(y = "Airpassangers")
+```
+
+The forecasted data shows that the number of air passengers will increase in the future. and follows the same pattern as the historical data.
+
+\newpage
+
+## Checking Residuals
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+checkresiduals(model)
+```
+
+Since the p-value (0.01068) is less than 0.05, we reject the null hypothesis at the 5% significance level. This indicates that the residuals are autocorrelated, suggesting the ARIMA(1,1,0)(0,1,0)[12] model may not be an appropriate fit.
+
+\newpage
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+acf(model$residuals)
+```
+
+\newpage
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+pacf(model$residuals)
+```
+
+\newpage
+
+# Computing ARIMA manually
+
+We know that the model has an ACF (q=0) and a PACF (p=1), so we can compute the ARIMA model manually. However, why does the auto ARIMA function require differencing even if the data is stationary?
+
+## Checking for N differencing
+
+checking for the differencing using the ndiffs function.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+ndiffs(timedata)
+```
+
+The data has been differenced once to achieve stationarity.
+
+\newpage
+
+## Differencing the data
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+diff1=diff(timedata)
+autoplot(diff1)+
+  labs(title="Differenced Airpassangers")+
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+```
+
+we successfully differenced the data and now we can compute the ARIMA model manually.
+
+now checking for Stationarity of the differenced data
+
+## Checking for Stationarity
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+adf.test(diff1)
+```
+
+the p value is less than 0.05, so the differenced data is stationary.
+
+## ACF plot of differenced data
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+ggAcf(diff1)+
+  labs(title="ACF plot of Differenced Airpassangers")+
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+```
+
+the above plot shows that the model is Moving Average (MA) model. (q=0) \newpage
+
+## PACF plot of differenced data
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+ggPacf(diff1)+
+  labs(title="PACF plot of Differenced Airpassangers")+
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+```
+
+the above chart shows that the model have autoregressive (AR) model (p=1)
+
+\newpage
+
+## Computing ARIMA manually
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+model1=arima(timedata,order=c(1,1,0),seasonal = list(order=c(0,1,0),period=12))
+model1
+summary(model1)
+```
+
+\newpage
+
+## Forecasting
+
+forecasting for next 24 months using the forecast function.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+future1=forecast(model1,h=24)
+future1
+```
+
+ploting the forecasted data using the autoplot function.
+
+\newpage
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+autoplot(future1)+
+  labs(title="Forecasting Airpassangers")+
+  theme(plot.title = element_text(hjust=0.5,face="bold"))+
+  labs(y = "Airpassangers")
+```
+
+By visually their is no difference between the auto arima and manual arima model.
+
+\newpage
+
+## Checking Residuals
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+checkresiduals(model1)
+```
+
+hypothesis test for the Ljung-Box test:
+
+The Ljung-Box test p-value is 0.01, which is less than 0.05, so we reject the null hypothesis at a 5% significance level,and conclude that the residuals are not autocorrelated.
+
+\newpage
+
+# Conclusion
+
+Computing ARIMA, whether manually or automatically, yields the same results. The data is stationary, multiplicative, and seasonal, making the ARIMA model the best fit for it.
