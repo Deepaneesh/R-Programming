@@ -232,17 +232,17 @@ Model_tuned <- workflow_map(
     ## → A | warning: `early_stop` was reduced to 0.
 
     ## There were issues with some computations   A: x1There were issues with some computations   A: x2There were issues with some computations   A: x3There were issues with some computations   A: x4There were issues with some computations   A: x5There were issues with some computations   A: x5
-    ## ✔ 1 of 3 tuning:     rec_boost_tree_xgboost (13.7s)
+    ## ✔ 1 of 3 tuning:     rec_boost_tree_xgboost (13s)
     ## i 2 of 3 tuning:     rec_multinom_reg_glmnet
 
     ## Warning: package 'glmnet' was built under R version 4.4.3
 
     ## Warning: package 'Matrix' was built under R version 4.4.3
 
-    ## ✔ 2 of 3 tuning:     rec_multinom_reg_glmnet (3s)
+    ## ✔ 2 of 3 tuning:     rec_multinom_reg_glmnet (3.1s)
     ## i 3 of 3 tuning:     rec_rand_forest_randomForest
     ## i Creating pre-processing data to finalize unknown parameter: mtry
-    ## ✔ 3 of 3 tuning:     rec_rand_forest_randomForest (3s)
+    ## ✔ 3 of 3 tuning:     rec_rand_forest_randomForest (3.1s)
 
 The `workflow_map()` function from the `workflows` package allows us to
 apply the model tuning process across different models and
@@ -425,6 +425,28 @@ positives, false positives, true negatives, and false negatives. This is
 useful for understanding how well the model classifies different species
 in the iris dataset.
 
+#### Autoplot for confusion matrix
+
+``` r
+final_workflow %>% last_fit(iris_split,
+                            metrics = metric_set(accuracy, roc_auc, kap)) %>% 
+  collect_predictions() %>% conf_mat(truth = Species, estimate = .pred_class) %>% autoplot(type = "heatmap") +
+  labs(title = "Confusion Matrix Heatmap",
+       x = "Actual Species",
+       y = "Predicted Species")+
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+```
+
+    ## Scale for fill is already present.
+    ## Adding another scale for fill, which will replace the existing scale.
+
+![](tidymodel_files/figure-gfm/unnamed-chunk-21-1.png)<!-- --> The
+`autoplot()` function from the `ggplot2` package allows us to create a
+heatmap of the confusion matrix. This visualization helps to quickly
+identify how well the model is performing across different classes.
+
 ### ROC Curve
 
 ``` r
@@ -456,6 +478,26 @@ Receiver Operating Characteristic (ROC) curve to visualize the model’s
 performance in terms of true positive rate versus false positive rate.
 This is particularly useful for binary classification problems, but can
 also be adapted for multi-class problems.
+
+#### Autoplot for ROC Curve
+
+``` r
+final_workflow %>% last_fit(iris_split,
+                            metrics = metric_set(accuracy, roc_auc, kap)) %>% 
+  collect_predictions()  %>% 
+  roc_curve(truth = Species, 
+            .pred_setosa, .pred_versicolor, .pred_virginica,
+            estimator = "hand_till") %>% autoplot()+
+  labs(title = "ROC Curve")+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+```
+
+![](tidymodel_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+
+The `autoplot()` function is used to create a visually appealing ROC
+curve. This plot helps to assess the trade-off between sensitivity and
+specificity for different classification thresholds.
 
 ## Binding Columns
 
