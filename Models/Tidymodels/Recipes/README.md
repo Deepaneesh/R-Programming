@@ -3,7 +3,7 @@ Recipes in Detail
 
 # What is Recipes
 
-REcipes is a package in R that provides a framework for creating and
+Recipes is a package in R that provides a framework for creating and
 managing data preprocessing workflows. It allows users to define a
 sequence of data transformations, making it easier to prepare data for
 modeling.

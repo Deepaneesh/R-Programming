@@ -8,7 +8,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 # What is Recipes 
-REcipes is a package in R that provides a framework for creating and managing data preprocessing workflows. It allows users to define a sequence of data transformations, making it easier to prepare data for modeling.
+Recipes is a package in R that provides a framework for creating and managing data preprocessing workflows. It allows users to define a sequence of data transformations, making it easier to prepare data for modeling.
 
 # Key Features of Recipes
 - **Modular Design**: REcipes allows users to create modular data preprocessing steps, making it easy to manage complex workflows.
