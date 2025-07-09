@@ -228,6 +228,13 @@ You can also use **tidyselect helpers** like `starts_with()`,
 
 #### Dummy Variables & Encodings
 
+    iris$Species <- relevel(iris$Species, ref = "virginica")
+
+To relevel the factor levels of the `Species` variable in the `iris`
+dataset, you can use the `relevel()` function. This function allows you
+to specify a reference level for the factor, which is useful for
+modeling purposes.
+
 | Function | Description |
 |----|----|
 | `step_dummy()` | One-hot encode categorical variables |
