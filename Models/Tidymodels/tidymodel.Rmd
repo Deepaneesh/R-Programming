@@ -203,6 +203,18 @@ final_model <- final_workflow %>%
 ```
 The `fit()` function is used to train the finalized workflow on the training data. This creates a model that can be used for predictions on new data.
 
+## To know the variable importance
+
+```{r}
+library(vip)
+final_workflow %>%
+  fit(data = iris_train) %>% pull_workflow_fit() %>% vip(geom= "col")
+```
+
+
+The `vip()` function from the `vip` package visualizes the variable importance of the fitted model. This helps us understand which features are most influential in making predictions.
+The `pull_workflow_fit()` function extracts the fitted model from the workflow, allowing us to visualize its variable importance.
+
 ## Model Evaluation
 
 ### Collect predictions

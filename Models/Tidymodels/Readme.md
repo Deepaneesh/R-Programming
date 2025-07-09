@@ -232,17 +232,17 @@ Model_tuned <- workflow_map(
     ## → A | warning: `early_stop` was reduced to 0.
 
     ## There were issues with some computations   A: x1There were issues with some computations   A: x2There were issues with some computations   A: x3There were issues with some computations   A: x4There were issues with some computations   A: x5There were issues with some computations   A: x5
-    ## ✔ 1 of 3 tuning:     rec_boost_tree_xgboost (27.5s)
+    ## ✔ 1 of 3 tuning:     rec_boost_tree_xgboost (12.5s)
     ## i 2 of 3 tuning:     rec_multinom_reg_glmnet
 
     ## Warning: package 'glmnet' was built under R version 4.4.3
 
     ## Warning: package 'Matrix' was built under R version 4.4.3
 
-    ## ✔ 2 of 3 tuning:     rec_multinom_reg_glmnet (7.8s)
+    ## ✔ 2 of 3 tuning:     rec_multinom_reg_glmnet (2.9s)
     ## i 3 of 3 tuning:     rec_rand_forest_randomForest
     ## i Creating pre-processing data to finalize unknown parameter: mtry
-    ## ✔ 3 of 3 tuning:     rec_rand_forest_randomForest (7.7s)
+    ## ✔ 3 of 3 tuning:     rec_rand_forest_randomForest (2.9s)
 
 The `workflow_map()` function from the `workflows` package allows us to
 apply the model tuning process across different models and
@@ -355,6 +355,40 @@ The `fit()` function is used to train the finalized workflow on the
 training data. This creates a model that can be used for predictions on
 new data.
 
+## To know the variable importance
+
+``` r
+library(vip)
+```
+
+    ## Warning: package 'vip' was built under R version 4.4.3
+
+    ## 
+    ## Attaching package: 'vip'
+
+    ## The following object is masked from 'package:utils':
+    ## 
+    ##     vi
+
+``` r
+final_workflow %>%
+  fit(data = iris_train) %>% pull_workflow_fit() %>% vip(geom= "col")
+```
+
+    ## Warning: `pull_workflow_fit()` was deprecated in workflows 0.2.3.
+    ## ℹ Please use `extract_fit_parsnip()` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+![](tidymodel_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+
+The `vip()` function from the `vip` package visualizes the variable
+importance of the fitted model. This helps us understand which features
+are most influential in making predictions. The `pull_workflow_fit()`
+function extracts the fitted model from the workflow, allowing us to
+visualize its variable importance.
+
 ## Model Evaluation
 
 ### Collect predictions
@@ -442,7 +476,7 @@ final_workflow %>% last_fit(iris_split,
     ## Scale for fill is already present.
     ## Adding another scale for fill, which will replace the existing scale.
 
-![](tidymodel_files/figure-gfm/unnamed-chunk-21-1.png)<!-- --> The
+![](tidymodel_files/figure-gfm/unnamed-chunk-22-1.png)<!-- --> The
 `autoplot()` function from the `ggplot2` package allows us to create a
 heatmap of the confusion matrix. This visualization helps to quickly
 identify how well the model is performing across different classes.
@@ -493,7 +527,7 @@ final_workflow %>% last_fit(iris_split,
   theme(plot.title = element_text(hjust=0.5,face="bold"))
 ```
 
-![](tidymodel_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](tidymodel_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
 
 The `autoplot()` function is used to create a visually appealing ROC
 curve. This plot helps to assess the trade-off between sensitivity and
