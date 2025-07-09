@@ -17,7 +17,7 @@ iris_recipe <- recipe(Species ~ ., data = iris_train) %>%
 
 #extracing the recipe
 iris_recipe %>% 
-  prep() %>% 
+  prep(iris) %>% 
   juice()
 
 ## model Specification 
@@ -56,13 +56,13 @@ Model_tuned <- workflow_map(
 Model_tuned %>% collect_metrics()
 
 
-collect_metrics(Model_tuned) %>%
+Model_tuned %>% collect_metrics() %>%
   filter(.metric == "accuracy") %>%
   select(wflow_id, .metric, mean, std_err) %>%
   arrange(desc(mean))
 
 best_result <- Model_tuned %>%
-  select_best("accuracy")
+  select_best(metric = "accuracy")
 
 Model_tuned$wflow_id
 
@@ -94,3 +94,26 @@ final_preds <- predict(final_model, iris_test) %>%
   bind_cols(iris_test)
 
 metrics(final_preds, truth = Species, estimate = .pred_class)
+
+
+final_workflow %>% last_fit(iris_split,
+                            metrics = metric_set(accuracy, roc_auc, kap)) %>% 
+  collect_predictions() %>% conf_mat(truth = Species, estimate = .pred_class) %>% autoplot(type = "heatmap") +
+  labs(title = "Confusion Matrix Heatmap",
+       x = "Actual Species",
+       y = "Predicted Species")+
+  scale_fill_gradient(low = "white", high = "steelblue") +
+  theme_minimal() +
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+
+
+final_workflow %>% last_fit(iris_split,
+                            metrics = metric_set(accuracy, roc_auc, kap)) %>% 
+  collect_predictions()  %>% 
+  roc_curve(truth = Species, 
+            .pred_setosa, .pred_versicolor, .pred_virginica,
+            estimator = "hand_till") %>% autoplot()+
+  labs(title = "ROC Curve")+
+  theme_minimal() +
+  theme(plot.title = element_text(hjust=0.5,face="bold"))
+
