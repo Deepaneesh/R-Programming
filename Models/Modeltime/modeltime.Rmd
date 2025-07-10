@@ -1,0 +1,298 @@
+---
+title: "Modeltime"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Modeltime
+Modeltime is a framework for building, evaluating, and deploying time series models in R. It provides a consistent interface for working with various time series models, making it easier to compare and select the best model for your data.
+
+# Power of modeltime
+Modeltime allows you to:
+- Build and evaluate multiple time series models using a consistent interface.
+- Compare model performance using various metrics.
+- Easily deploy models for forecasting.
+- Integrate with other R packages for data manipulation and visualization.
+
+# Steps in modeltime
+1. **Data Preparation**: Prepare your time series data, ensuring it is in the correct format.
+2. **Model Specification**: Specify the models you want to use for forecasting.
+3. **Model Fitting**: Fit the models to your training data.
+4. **Model Evaluation**: Evaluate the models using various metrics to determine their performance.
+5. **Model Forecasting**: Use the best-performing model to make forecasts on new data.
+6. **Model Deployment**: Deploy the model for production use, allowing for real-time forecasting.
+
+packages needed:
+```{}
+library(modeltime)
+library(tidymodels)
+library(timetk)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(zoo)
+library(modeltime.ensemble)
+
+```
+
+# Example of modeltime usage
+
+## Load necessary libraries
+```{r}
+library(modeltime)
+library(tidymodels)
+library(timetk)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(zoo)
+library(modeltime.ensemble)
+
+```
+
+## Load example data
+
+```{r}
+data <- tibble(
+  date  = as.Date(as.yearmon(time(AirPassengers))),
+  value = as.numeric(AirPassengers)
+)
+```
+
+the data should be in a tibble format with a date column and a value column.
+
+## Split the data into training and testing sets
+
+```{r}
+splits <- initial_time_split(data, prop = 0.9)
+```
+
+## Specify the model
+
+```{r}
+model_arima <- arima_reg() %>%
+  set_engine("auto_arima") %>%
+  fit(value ~ date, data = training(splits))
+
+model_ets <- exp_smoothing(seasonal_period = 12) %>%
+  set_engine("ets") %>%
+  fit(value ~ date, data = training(splits))
+
+model_prophet <- prophet_reg() %>%
+  set_engine("prophet") %>%
+  fit(value ~ date, data = training(splits))
+```
+
+## Create a modeltime table
+```{r}
+models_tbl <- modeltime_table(
+  model_arima,
+  model_ets,
+  model_prophet
+)
+
+```
+model table is a table that contains all the models you want to compare.
+
+## Evaluate the models on the testing set
+
+```{r}
+calibration_tbl <- models_tbl %>%
+  modeltime_calibrate(new_data = testing(splits))
+```
+
+this will give you a table with the calibrated models.
+
+```{r}
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = data
+  )
+```
+this will give you the forecasted values for the testing set.
+
+## Plot the forecasted values
+```{}
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = data
+  ) %>%
+  plot_modeltime_forecast()
+```
+This will plot the forecasted values along with the actual values from the testing set.
+
+# Evolution of models by metrics
+```{r}
+calibration_tbl %>%
+  modeltime_accuracy() %>%
+  arrange(rmse)
+```
+This will give you a table with the accuracy metrics for each model, sorted by RMSE (Root Mean Square Error).
+
+## Refitting 
+
+```{r}
+# Refit for the entire dataset
+refit_tbl <- calibration_tbl %>%
+  modeltime_refit(data = data)
+```
+This will refit the models using the entire dataset, allowing you to use them for forecasting on new data.
+
+## Forecasting on new data
+```{r}
+# Forecasting for the next 12 months
+future_tbl <- data %>%
+  future_frame(.date_var = date, .length_out = 12)
+```
+mention the future frame function which creates a future frame for forecasting.
+
+## Forcasting
+```{r}
+forecast_future <- refit_tbl %>%
+  modeltime_forecast(new_data = future_tbl, actual_data = data)
+```
+This will generate forecasts for the next 12 months based on the refitted models.
+
+## Plot the future forecast
+```{}
+forecast_future %>%
+  plot_modeltime_forecast()
+```
+This will plot the forecasted values for the next 12 months, allowing you to visualize the expected trends and patterns in the data.
+
+# Viewing the forecasted values
+```{r}
+forecast_future %>%
+  select(.model_desc, .index, .value, .conf_lo, .conf_hi) %>% head()
+
+forecast_future %>% head()
+```
+
+This will display the forecasted values along with their confidence intervals, allowing you to see the expected range of values for the next 12 months.
+
+modeltime also allow the user to create ensembles of models, which can improve forecasting accuracy by combining the strengths of multiple models.
+which means hybrid models can be created using modeltime.ensemble package.
+
+## 📊 Summary of Ensemble Methods in Modeltime
+
+This allows advanced ensembling with meta-learning or stacking, but it requires manual implementation or integration with workflowsets or stacks.
+
+| Function            | Type                  | Weights Required | Key Use Case                             |
+|---------------------|------------------------|------------------|------------------------------------------|
+| `ensemble_average()`  | Simple Average         | ❌               | Quick hybrid model                       |
+| `ensemble_weighted()` | Weighted Average       | ✅               | Give more importance to better models    |
+| Custom Stacking       | Meta-Learning / Blend  | ✅               | Advanced ML ensemble (manual)            |
+
+# Example of Ensemble specification
+```{}
+ensemble_model <- ensemble_average(models_tbl)
+ensemble_model <- ensemble_weighted(models_tbl, weights = c(0.6, 0.3, 0.1))
+
+```
+by these functions, you can create ensemble models that combine the predictions of multiple individual models, allowing for more robust forecasting.
+
+# example of Hybrid models
+
+## data
+```{r}
+data("AirPassengers")
+air_df <- tibble(
+  date  = as.Date(as.yearmon(time(AirPassengers))),
+  value = as.numeric(AirPassengers)
+)
+
+```
+
+## Split the data into training and testing sets
+
+```{r}
+splits <- initial_time_split(air_df, prop = 0.9)
+
+```
+## Specify the models
+```{r}
+model_fit_arima <- arima_reg() %>%
+  set_engine("auto_arima") %>%
+  fit(value ~ date, data = training(splits))
+
+model_fit_ets <- exp_smoothing() %>%
+  set_engine("ets") %>%
+  fit(value ~ date, data = training(splits))
+
+model_fit_prophet <- prophet_reg() %>%
+  set_engine("prophet") %>%
+  fit(value ~ date, data = training(splits))
+```
+
+## Create a modeltime table
+```{r}
+models_tbl <- modeltime_table(
+  model_fit_arima,
+  model_fit_ets,
+  model_fit_prophet
+)
+```
+# 🌟 Create an Ensemble Model (Average)
+```{r}
+ensemble_model <- ensemble_average(models_tbl)
+ensemble_tbl <- modeltime_table(ensemble_model)
+
+```
+# Combine all 4 models
+```{r}
+all_models_tbl <- bind_rows(models_tbl, ensemble_tbl)
+```
+# Evaluate the models on the testing set
+```{r}
+calibration_tbl <- all_models_tbl %>%
+  modeltime_calibrate(new_data = testing(splits))
+```
+
+# Show Accuracy Metrics
+
+```{r}
+calibration_tbl %>%
+  modeltime_accuracy() %>%
+  arrange(rmse)
+```
+# Plot Predictions vs Actuals (Testing Period)
+```{}
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = air_df
+  ) %>%
+  plot_modeltime_forecast()
+```
+
+# Refitting for the entire data
+```{r}
+all_models_refit <- all_models_tbl %>%
+  modeltime_refit(data = air_df)
+```
+
+# Forecasting for the next 12 months
+```{r}
+future_tbl <- air_df %>%
+  future_frame(.date_var = date, .length_out = 12)
+
+forecast_tbl <- all_models_refit %>%
+  modeltime_forecast(new_data = future_tbl, actual_data = air_df)
+
+```
+# Plot Future Forecast
+```{}
+forecast_tbl %>%
+  plot_modeltime_forecast()
+```
+# View Forecasted Values
+```{r}
+forecast_tbl %>%
+  head()
+```
+
