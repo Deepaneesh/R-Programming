@@ -155,3 +155,18 @@ nest_join(students, marks, by = "student_id")
 
 ```
 
+using self join 
+```{r}
+# Sample employee data
+employees <- tibble(
+  emp_id = c(1, 2, 3, 4),
+  name = c("Alice", "Bob", "Charlie", "David"),
+  manager_id = c(NA, 1, 1, 2)
+)
+
+# Self join to get manager names
+employees %>%
+  left_join(employees, by = c("manager_id" = "emp_id"), suffix = c("_emp", "_mgr")) 
+
+```
+
