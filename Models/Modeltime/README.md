@@ -153,6 +153,13 @@ data <- tibble(
 the data should be in a tibble format with a date column and a value
 column.
 
+## plotling the data
+
+    data %>% plot_time_series(date, value)
+
+this will plot the time series data, allowing you to visualize trends
+and patterns over time.
+
 ## Split the data into training and testing sets
 
 ``` r
@@ -194,6 +201,81 @@ models_tbl <- modeltime_table(
 ```
 
 model table is a table that contains all the models you want to compare.
+
+## to know the summary of the models
+
+``` r
+# ARIMA Summary
+models_tbl %>% 
+  pluck_modeltime_model(1)
+```
+
+    ## parsnip model object
+    ## 
+    ## Series: outcome 
+    ## ARIMA(1,1,0)(0,1,0)[12] 
+    ## 
+    ## Coefficients:
+    ##           ar1
+    ##       -0.2435
+    ## s.e.   0.0898
+    ## 
+    ## sigma^2 = 109.3:  log likelihood = -436.39
+    ## AIC=876.78   AICc=876.88   BIC=882.28
+
+``` r
+# ETS Summary
+models_tbl %>% 
+  pluck_modeltime_model(2)
+```
+
+    ## parsnip model object
+    ## 
+    ## ETS(M,Ad,M) 
+    ## 
+    ## Call:
+    ## forecast::ets(y = outcome, model = model_ets, damped = damping_ets, 
+    ##     alpha = alpha, beta = beta, gamma = gamma)
+    ## 
+    ##   Smoothing parameters:
+    ##     alpha = 0.7699 
+    ##     beta  = 0.023 
+    ##     gamma = 1e-04 
+    ##     phi   = 0.9798 
+    ## 
+    ##   Initial states:
+    ##     l = 120.7418 
+    ##     b = 1.7557 
+    ##     s = 0.8969 0.7954 0.9171 1.0549 1.2142 1.2253
+    ##            1.1076 0.9793 0.982 1.0255 0.8933 0.9084
+    ## 
+    ##   sigma:  0.0382
+    ## 
+    ##      AIC     AICc      BIC 
+    ## 1213.724 1219.943 1265.201
+
+``` r
+# Prophet Model (no summary method, inspect structure)
+models_tbl %>% 
+  pluck_modeltime_model(3)
+```
+
+    ## parsnip model object
+    ## 
+    ## PROPHET Model
+    ## - growth: 'linear'
+    ## - n.changepoints: 25
+    ## - changepoint.range: 0.8
+    ## - yearly.seasonality: 'auto'
+    ## - weekly.seasonality: 'auto'
+    ## - daily.seasonality: 'auto'
+    ## - seasonality.mode: 'additive'
+    ## - changepoint.prior.scale: 0.05
+    ## - seasonality.prior.scale: 10
+    ## - holidays.prior.scale: 10
+    ## - logistic_cap: NULL
+    ## - logistic_floor: NULL
+    ## - extra_regressors: 0
 
 ## Evaluate the models on the testing set
 
@@ -452,6 +534,12 @@ ensemble_tbl <- modeltime_table(ensemble_model)
 ``` r
 all_models_tbl <- bind_rows(models_tbl, ensemble_tbl)
 ```
+
+``` r
+all_models_tbl %>% pluck_modeltime_model(4)
+```
+
+    ## NULL
 
 # Evaluate the models on the testing set
 

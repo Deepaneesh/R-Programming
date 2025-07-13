@@ -64,6 +64,13 @@ data <- tibble(
 
 the data should be in a tibble format with a date column and a value column.
 
+## plotling the data
+```{}
+data %>% plot_time_series(date, value)
+```
+
+this will plot the time series data, allowing you to visualize trends and patterns over time. 
+
 ## Split the data into training and testing sets
 
 ```{r}
@@ -96,6 +103,23 @@ models_tbl <- modeltime_table(
 
 ```
 model table is a table that contains all the models you want to compare.
+
+## to know the summary of the models
+
+```{r}
+# ARIMA Summary
+models_tbl %>% 
+  pluck_modeltime_model(1)
+
+# ETS Summary
+models_tbl %>% 
+  pluck_modeltime_model(2)
+
+# Prophet Model (no summary method, inspect structure)
+models_tbl %>% 
+  pluck_modeltime_model(3)
+
+```
 
 ## Evaluate the models on the testing set
 
@@ -247,6 +271,14 @@ ensemble_tbl <- modeltime_table(ensemble_model)
 ```{r}
 all_models_tbl <- bind_rows(models_tbl, ensemble_tbl)
 ```
+
+```{r}
+all_models_tbl %>% pluck_modeltime_model(4)
+```
+
+
+
+
 # Evaluate the models on the testing set
 ```{r}
 calibration_tbl <- all_models_tbl %>%
