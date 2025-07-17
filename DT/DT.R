@@ -5,8 +5,9 @@ datatable(
   filter = "top",
   rownames = FALSE,
   editable = FALSE,
-  extensions = c("Buttons", "Scroller", "Responsive", "KeyTable", "SearchBuilder"),
+  extensions = c("Buttons", "Scroller", "Responsive", "KeyTable", "SearchBuilder","RowReorder"),
   options = list(
+    rowReorder = TRUE,
     keys = TRUE,
     scrollY = 400,
     scrollX = 200,
