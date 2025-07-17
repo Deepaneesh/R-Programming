@@ -1,0 +1,214 @@
+---
+title: "lubridate"
+output: github_document
+---
+
+lubridate is an R package that makes it easier to work with dates and times. It simplifies parsing, extraction, modification, and arithmetic operations on dates.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+library(lubridate)
+```
+
+# 1. Parsing Dates and Date-Times
+
+Common lubridate Parsing Functions:
+
+-   ymd() – Year-Month-Day
+
+-   dmy() – Day-Month-Year
+
+-   mdy() – Month-Day-Year
+
+-   ydm(), myd(), dym() – Other formats
+
+-   ymd_hms(), dmy_hms() – Include time (hour, minute, second)
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+ymd("2025-07-17")             # "2025-07-17"
+dmy("17-07-2025")             # "2025-07-17"
+mdy("July 17, 2025")          # "2025-07-17"
+ydm("2025-17-07")             # "2025-07-17"
+ymd_hms("2025-07-17 14:30:00")# "2025-07-17 14:30:00 UTC"
+
+```
+
+# 2. Extracting Date-Time Components Functions:
+
+-   year(), month(), day()
+
+-   hour(), minute(), second()
+
+-   wday(), yday(), mday()
+
+-   week(), quarter(), semester()
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+dt <- ymd_hms("2025-07-17 14:45:30")
+
+year(dt)      # 2025
+month(dt)     # 7
+month(dt, label = TRUE)        # Jul
+month(dt, label = TRUE, abbr = FALSE) # July
+day(dt)       # 17
+hour(dt)      # 14
+minute(dt)    # 45
+second(dt)    # 30
+wday(dt, label = TRUE)         # Thu
+wday(dt, label = TRUE, abbr = FALSE) # Thursday
+yday(dt)      # day of the year ( 1 to 365)
+quarter(dt)   # quarter of the year (1 to 4)
+week(dt)     # week of the year (1 to 53)
+semester(dt)  # semester of the year (1 or 2)
+mday(dt)      # day of the month (17)
+```
+
+
+# 4. Time Zones ✅ Functions:
+
+-   tz() – Get time zone
+
+-   with_tz() – Convert to new zone (adjusts time)
+
+-   force_tz() – Change zone without changing clock time
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+dt <- ymd_hms("2025-07-17 10:00:00", tz = "Asia/Kolkata")
+
+with_tz(dt, "UTC")     # "2025-07-17 04:30:00 UTC"
+force_tz(dt, "UTC")    # "2025-07-17 10:00:00 UTC"
+
+```
+
+# 5. Rounding Dates
+
+✅ Functions:
+
+-   round_date()
+
+-   floor_date()
+
+-   ceiling_date()
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+x <- ymd_hms("2025-07-17 10:34:50")
+
+round_date(x, "hour")    # "2025-07-17 11:00:00 UTC"
+floor_date(x, "hour")    # "2025-07-17 10:00:00 UTC"
+ceiling_date(x, "hour")  # "2025-07-17 11:00:00 UTC"
+
+```
+
+# 6. Time Arithmetic
+
+-   +, - – Add/subtract durations
+
+-   days(), months(), years()
+
+-   duration(), period()
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+date <- ymd("2025-07-17")
+
+date + days(10)               # "2025-07-27"
+date + period(1, "month")     # "2025-08-17"
+date + duration(3600)         # "2025-07-17 01:00:00 UTC"
+
+```
+
+# 7. Intervals and Durations
+
+✅ Functions:
+
+-   interval(start, end)
+
+-   %within% – Check if a date falls within an interval
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+int <- interval(ymd("2025-07-01"), ymd("2025-07-31"))
+
+# length in days
+int_length(int)/86400
+
+target <- ymd("2025-07-17")
+target %within% int
+
+```
+
+
+
+#  8. Other Useful Functions
+
+Below are some handy functions in `lubridate` for working with dates and times:
+
+| **Function**       | **Purpose**                               |
+|--------------------|-------------------------------------------|
+| `today()`          | Current date                              |
+| `now()`            | Current date-time                         |
+| `leap_year()`      | Check for leap year                       |
+| `is.Date()`        | Check if object is of Date class          |
+| `make_date()`      | Create a date from year, month, and day   |
+| `make_datetime()`  | Create a datetime from components         |
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+today()
+now()
+leap_year(2024)
+make_date(2025, 12, 31)
+make_datetime(2025, 12, 31, 14, 30, 0)
+
+```
+
+#  Summary Table of `lubridate` Functions
+
+| **Category**      | **Functions**                            |
+|-------------------|-------------------------------------------|
+| Parsing           | `ymd()`, `dmy()`, `mdy()`, `ymd_hms()`    |
+| Extraction        | `year()`, `month()`, `day()`, `hour()`    |
+| Modification      | `year() <-`, `month() <-`, etc.           |
+| Time Zones        | `with_tz()`, `force_tz()`, `tz()`         |
+| Rounding          | `round_date()`, `floor_date()`            |
+| Arithmetic        | `days()`, `months()`, `duration()`        |
+| Intervals         | `interval()`, `%within%`                  |
+| Current Dates     | `today()`, `now()`, `leap_year()`         |
+
+
+# System date functions
+
+
+| **Function**   | **Returns**          | **Class**   | **Time Included** |
+|----------------|----------------------|-------------|--------------------|
+| `Sys.Date()`   | System Date          | `Date`      | ❌ No              |
+| `Sys.time()`   | System Date-Time     | `POSIXct`   | ✅ Yes             |
+| `now()`        | lubridate Date-Time  | `POSIXct`   | ✅ Yes             |
+
+```{r}
+Sys.Date()          # "2025-07-17"
+Sys.time()          
+
+```
+
+## Formate changing 
+```{r}
+format(Sys.time(), "%Y-%m-%d")   # Just the date
+format(Sys.time(), "%H:%M:%S")   # Just the time
+format(Sys.time(), "%Y-%m-%d %H:%M:%S") # Full date-time  
+
+```
+## Adding 
+```{r}
+Sys.Date()+ 1  # Adds one day
+Sys.Date()+ month(1)  # Adds one month
+Sys.Date() + years(1)  # Adds one year
+Sys.Date() + days(10)  # Adds 10 days
+
+```
+
+```{r}
+Sys.time() + hours(2)  # Adds 2 hours
+Sys.time() + minutes(30)  # Adds 30 minutes
+Sys.time() + seconds(45)  # Adds 45 seconds
+Sys.time() + days(1)  # Adds 1 day
+Sys.time() + weeks(1)  # Adds 1 week
+Sys.time() + months(1)  # Adds 1 month
+Sys.time() + years(1)  # Adds 1 year
+```
+
