@@ -311,6 +311,34 @@ final_preds <- predict(final_model, iris_test) %>%
 ```
 The `predict()` function is used to make predictions on the testing data using the trained model. The `bind_cols()` function from the `dplyr` package is then used to combine the predictions with the original testing data, allowing for easy comparison and evaluation.
 
+## predicting the value by manual entry
+```{r}
+iris[4,]
+```
+
+```{r}
+new_id=tribble(~Sepal.Length,~Sepal.Width,~Petal.Length,~Petal.Width,
+              4.6,3.1,1.5,0.2 )
+new_id
+```
+```{r}
+predict(final_model,new_data=new_id,type="prob")
+```
+`prob` is used to get the probability of that class will be present for this data
+
+```{r}
+predict(final_model,new_data=new_id,type="class")
+```
+`class` is used for getting the highest probability of the class will present for this data
+
+### To Save the model
+
+```{r}
+library(readr)
+write_rds(final_model,"iris_best_classification_model.rds")
+best_model=read_rds("iris_best_classification_model.rds")
+```
+
 ## Conclusion
 The `tidymodels` framework provides a comprehensive and consistent approach to machine learning in R. By following the tidyverse principles, it allows for reproducible and efficient workflows that can be easily adapted to various modeling tasks. The integration of multiple packages within the `tidymodels` ecosystem simplifies the process of data preparation, model training, evaluation, and deployment.
 

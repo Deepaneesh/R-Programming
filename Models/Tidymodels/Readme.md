@@ -232,17 +232,17 @@ Model_tuned <- workflow_map(
     ## → A | warning: `early_stop` was reduced to 0.
 
     ## There were issues with some computations   A: x1There were issues with some computations   A: x2There were issues with some computations   A: x3There were issues with some computations   A: x4There were issues with some computations   A: x5There were issues with some computations   A: x5
-    ## ✔ 1 of 3 tuning:     rec_boost_tree_xgboost (13.2s)
+    ## ✔ 1 of 3 tuning:     rec_boost_tree_xgboost (12.3s)
     ## i 2 of 3 tuning:     rec_multinom_reg_glmnet
 
     ## Warning: package 'glmnet' was built under R version 4.4.3
 
     ## Warning: package 'Matrix' was built under R version 4.4.3
 
-    ## ✔ 2 of 3 tuning:     rec_multinom_reg_glmnet (3.1s)
+    ## ✔ 2 of 3 tuning:     rec_multinom_reg_glmnet (2.9s)
     ## i 3 of 3 tuning:     rec_rand_forest_randomForest
     ## i Creating pre-processing data to finalize unknown parameter: mtry
-    ## ✔ 3 of 3 tuning:     rec_rand_forest_randomForest (3.4s)
+    ## ✔ 3 of 3 tuning:     rec_rand_forest_randomForest (3s)
 
 The `workflow_map()` function from the `workflows` package allows us to
 apply the model tuning process across different models and
@@ -687,6 +687,72 @@ The `predict()` function is used to make predictions on the testing data
 using the trained model. The `bind_cols()` function from the `dplyr`
 package is then used to combine the predictions with the original
 testing data, allowing for easy comparison and evaluation.
+
+## predicting the value by manual entry
+
+``` r
+iris[4,]
+```
+
+    ##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+    ## 4          4.6         3.1          1.5         0.2  setosa
+
+``` r
+new_id=tribble(~Sepal.Length,~Sepal.Width,~Petal.Length,~Petal.Width,
+              4.6,3.1,1.5,0.2 )
+new_id
+```
+
+    ## # A tibble: 1 × 4
+    ##   Sepal.Length Sepal.Width Petal.Length Petal.Width
+    ##          <dbl>       <dbl>        <dbl>       <dbl>
+    ## 1          4.6         3.1          1.5         0.2
+
+``` r
+predict(final_model,new_data=new_id,type="prob")
+```
+
+    ## # A tibble: 1 × 3
+    ##   .pred_setosa .pred_versicolor .pred_virginica
+    ##          <dbl>            <dbl>           <dbl>
+    ## 1        0.999         0.000699        7.45e-18
+
+`prob` is used to get the probability of that class will be present for
+this data
+
+``` r
+predict(final_model,new_data=new_id,type="class")
+```
+
+    ## # A tibble: 1 × 1
+    ##   .pred_class
+    ##   <fct>      
+    ## 1 setosa
+
+`class` is used for getting the highest probability of the class will
+present for this data
+
+### To Save the model
+
+``` r
+library(readr)
+```
+
+    ## 
+    ## Attaching package: 'readr'
+
+    ## The following object is masked from 'package:yardstick':
+    ## 
+    ##     spec
+
+    ## The following object is masked from 'package:scales':
+    ## 
+    ##     col_factor
+
+``` r
+write_rds(final_model,"iris_best_classification_model.rds")
+best_model=read_rds("iris_best_classification_model.rds")
+```
 
 ## Conclusion
 
