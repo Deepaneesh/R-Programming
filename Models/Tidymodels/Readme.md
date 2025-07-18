@@ -41,7 +41,7 @@ process. Below is a list of the core packages used at each stage:
 > Note: These packages are automatically installed with the `tidymodels`
 > meta-package.
 
-# Example for tidyverse
+# Example for tidymodels
 
 ## package loading
 
@@ -232,17 +232,17 @@ Model_tuned <- workflow_map(
     ## → A | warning: `early_stop` was reduced to 0.
 
     ## There were issues with some computations   A: x1There were issues with some computations   A: x2There were issues with some computations   A: x3There were issues with some computations   A: x4There were issues with some computations   A: x5There were issues with some computations   A: x5
-    ## ✔ 1 of 3 tuning:     rec_boost_tree_xgboost (13.1s)
+    ## ✔ 1 of 3 tuning:     rec_boost_tree_xgboost (13.2s)
     ## i 2 of 3 tuning:     rec_multinom_reg_glmnet
 
     ## Warning: package 'glmnet' was built under R version 4.4.3
 
     ## Warning: package 'Matrix' was built under R version 4.4.3
 
-    ## ✔ 2 of 3 tuning:     rec_multinom_reg_glmnet (2.9s)
+    ## ✔ 2 of 3 tuning:     rec_multinom_reg_glmnet (3.1s)
     ## i 3 of 3 tuning:     rec_rand_forest_randomForest
     ## i Creating pre-processing data to finalize unknown parameter: mtry
-    ## ✔ 3 of 3 tuning:     rec_rand_forest_randomForest (3.1s)
+    ## ✔ 3 of 3 tuning:     rec_rand_forest_randomForest (3.4s)
 
 The `workflow_map()` function from the `workflows` package allows us to
 apply the model tuning process across different models and

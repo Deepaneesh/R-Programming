@@ -42,7 +42,7 @@ The `tidymodels` ecosystem is organized to follow a consistent modeling process.
 > Note: These packages are automatically installed with the `tidymodels` meta-package. 
 
 
-# Example for tidyverse
+# Example for tidymodels
  
 ## package loading 
 ```{r}
