@@ -13,3 +13,6 @@ attachment.
   documents.
 - It can be used to automate email notifications, such as sending
   reports or alerts.
+
+by <https://account.live.com/AppPassword> using this link we can
+generate the password for the email account to send the mail.
