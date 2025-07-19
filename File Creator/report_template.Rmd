@@ -1,0 +1,33 @@
+---
+title: "Student Marks Report"
+output: pdf_document
+params:
+  user_name: "Default User"
+  roll_no: "R000"
+  subjects: !r data.frame(Subject = character(0), Marks = numeric(0))
+---
+
+##  Report for `r params$user_name`  
+###  Roll No: `r params$roll_no`
+
+---
+
+###  Subject-wise Marks
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Show subject-mark table
+knitr::kable(params$subjects, caption = "Marks in Each Subject")
+```
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+total <- sum(params$subjects$Marks)
+average <- mean(params$subjects$Marks)
+
+summary_df <- data.frame(
+  Total_Marks = total,
+  Average_Marks = round(average, 2)
+)
+
+knitr::kable(summary_df, caption = "Summary of Marks")
+```
+
