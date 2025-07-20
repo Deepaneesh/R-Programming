@@ -40,6 +40,7 @@ packages needed:
     library(zoo)
     library(modeltime.ensemble)
     library(plotly)
+    library(ggplot2)
 
 # Example of modeltime usage
 
@@ -163,6 +164,10 @@ library(plotly)
     ## 
     ##     layout
 
+``` r
+library(ggplot2)
+```
+
 ## Load example data
 
 ``` r
@@ -177,10 +182,21 @@ column.
 
 ## plotling the data
 
-    data %>% plot_time_series(date, value,.title="Air Passengers Data", .x_lab="Date", .y_lab="Number of Passengers") %>% layout(title = list(text = "Air Passengers Data", x = 0.5))
+interactive graph
+
+    data %>% plot_time_series(date, value,.title="Air Passengers Data", .x_lab="Date", .y_lab="Number of Passengers",.interactive = T) %>% layout(title = list(text = "Air Passengers Data", x = 0.5))
 
 this will plot the time series data, allowing you to visualize trends
 and patterns over time.
+
+for non interactive graph
+
+``` r
+data %>% plot_time_series(date, value,.title="Air Passengers Data", .x_lab="Date", .y_lab="Number of Passengers",.interactive = F)+
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+![](modeltime_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ## Extracting the Values from date
 
@@ -374,6 +390,8 @@ this will give you the forecasted values for the testing set.
 
 ## Plot the forecasted values
 
+interactive Graph
+
     calibration_tbl %>%
       modeltime_forecast(
         new_data = testing(splits),
@@ -383,6 +401,26 @@ this will give you the forecasted values for the testing set.
                               .x_lab = "Date",
                               .y_lab = "Number of Passengers") %>%
       layout(title = list(text = "Forecasted Values vs Actuals", x = 0.5))
+
+for non interactive graph
+
+``` r
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = data
+  ) %>%
+  plot_modeltime_forecast(.title = "Forecasted Values vs Actuals",
+                          .x_lab = "Date",
+                          .y_lab = "Number of Passengers",
+                          .interactive = F) +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+    ## -Inf
+
+![](modeltime_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
 
 This will plot the forecasted values along with the actual values from
 the testing set.
@@ -445,11 +483,29 @@ refitted models.
 
 ## Plot the future forecast
 
+interactive graph
+
     forecast_future %>%
       plot_modeltime_forecast(.title = "Future Forecast",
                               .x_lab = "Date",
                               .y_lab = "Number of Passengers") %>%
       layout(title = list(text = "Future Forecast", x = 0.5))
+
+for non interactive graph
+
+``` r
+forecast_future %>%
+  plot_modeltime_forecast(.title = "Future Forecast",
+                          .x_lab = "Date",
+                          .y_lab = "Number of Passengers",
+                          .interactive = F)+
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+    ## -Inf
+
+![](modeltime_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 This will plot the forecasted values for the next 12 months, allowing
 you to visualize the expected trends and patterns in the data.
@@ -627,6 +683,8 @@ calibration_tbl %>%
 
 # Plot Predictions vs Actuals (Testing Period)
 
+interactive graph
+
     calibration_tbl %>%
       modeltime_forecast(
         new_data = testing(splits),
@@ -637,6 +695,27 @@ calibration_tbl %>%
         .x_lab = "Date",
         .y_lab = "Number of Passengers"
       ) %>% layout(title = list(text = "Forecasted Values vs Actuals", x = 0.5))
+
+for non interactive graph
+
+``` r
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = air_df
+  ) %>%
+  plot_modeltime_forecast(
+    .title = "Forecasted Values vs Actuals",
+    .x_lab = "Date",
+    .y_lab = "Number of Passengers",
+    .interactive = F
+  ) + theme(plot.title = element_text(hjust = 0.5,face = "bold"))
+```
+
+    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+    ## -Inf
+
+![](modeltime_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 # Refitting for the entire data
 
@@ -671,12 +750,28 @@ forecast_tbl <- all_models_refit %>%
 
 # Plot Future Forecast
 
+interactive graph
+
     forecast_tbl %>%
       plot_modeltime_forecast(
         .title = "Future Forecast",
         .x_lab = "Date",
         .y_lab = "Number of Passengers"
       ) %>% layout(title = list(text = "Future Forecast", x = 0.5))
+
+for non interactive graph
+
+``` r
+forecast_tbl %>%
+  plot_modeltime_forecast(
+    .title = "Future Forecast",
+    .x_lab = "Date",
+    .y_lab = "Number of Passengers",
+    .interactive = F
+  ) + theme(plot.title = element_text(hjust = 0.5,face = "bold"))
+```
+
+![](modeltime_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 # View Forecasted Values
 

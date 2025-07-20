@@ -36,7 +36,7 @@ library(ggplot2)
 library(zoo)
 library(modeltime.ensemble)
 library(plotly)
-
+library(ggplot2)
 ```
 
 # Example of modeltime usage
@@ -52,7 +52,7 @@ library(ggplot2)
 library(zoo)
 library(modeltime.ensemble)
 library(plotly)
-
+library(ggplot2)
 ```
 
 ## Load example data
@@ -67,11 +67,18 @@ data <- tibble(
 the data should be in a tibble format with a date column and a value column.
 
 ## plotling the data
+interactive graph 
 ```{}
-data %>% plot_time_series(date, value,.title="Air Passengers Data", .x_lab="Date", .y_lab="Number of Passengers") %>% layout(title = list(text = "Air Passengers Data", x = 0.5))
+data %>% plot_time_series(date, value,.title="Air Passengers Data", .x_lab="Date", .y_lab="Number of Passengers",.interactive = T) %>% layout(title = list(text = "Air Passengers Data", x = 0.5))
 ```
 
 this will plot the time series data, allowing you to visualize trends and patterns over time. 
+
+for non interactive graph 
+```{r}
+data %>% plot_time_series(date, value,.title="Air Passengers Data", .x_lab="Date", .y_lab="Number of Passengers",.interactive = F)+
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
 
 ## Extracting the Values from date 
 ```{r}
@@ -154,6 +161,7 @@ calibration_tbl %>%
 this will give you the forecasted values for the testing set.
 
 ## Plot the forecasted values
+interactive Graph 
 ```{}
 calibration_tbl %>%
   modeltime_forecast(
@@ -165,6 +173,24 @@ calibration_tbl %>%
                           .y_lab = "Number of Passengers") %>%
   layout(title = list(text = "Forecasted Values vs Actuals", x = 0.5))
 ```
+
+for non interactive graph 
+```{r}
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = data
+  ) %>%
+  plot_modeltime_forecast(.title = "Forecasted Values vs Actuals",
+                          .x_lab = "Date",
+                          .y_lab = "Number of Passengers",
+                          .interactive = F) +
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+  
+```
+
+
+
 This will plot the forecasted values along with the actual values from the testing set.
 
 # Evolution of models by metrics
@@ -200,6 +226,7 @@ forecast_future <- refit_tbl %>%
 This will generate forecasts for the next 12 months based on the refitted models.
 
 ## Plot the future forecast
+interactive graph 
 ```{}
 forecast_future %>%
   plot_modeltime_forecast(.title = "Future Forecast",
@@ -207,6 +234,19 @@ forecast_future %>%
                           .y_lab = "Number of Passengers") %>%
   layout(title = list(text = "Future Forecast", x = 0.5))
 ```
+
+for non interactive graph
+```{r}
+forecast_future %>%
+  plot_modeltime_forecast(.title = "Future Forecast",
+                          .x_lab = "Date",
+                          .y_lab = "Number of Passengers",
+                          .interactive = F)+
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+
+
 This will plot the forecasted values for the next 12 months, allowing you to visualize the expected trends and patterns in the data.
 
 # Viewing the forecasted values
@@ -313,6 +353,7 @@ calibration_tbl %>%
   arrange(rmse)
 ```
 # Plot Predictions vs Actuals (Testing Period)
+interactive graph 
 ```{}
 calibration_tbl %>%
   modeltime_forecast(
@@ -325,6 +366,23 @@ calibration_tbl %>%
     .y_lab = "Number of Passengers"
   ) %>% layout(title = list(text = "Forecasted Values vs Actuals", x = 0.5))
 ```
+
+for non interactive graph 
+```{r}
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = air_df
+  ) %>%
+  plot_modeltime_forecast(
+    .title = "Forecasted Values vs Actuals",
+    .x_lab = "Date",
+    .y_lab = "Number of Passengers",
+    .interactive = F
+  ) + theme(plot.title = element_text(hjust = 0.5,face = "bold"))
+```
+
+
 
 # Refitting for the entire data
 ```{r}
@@ -342,6 +400,7 @@ forecast_tbl <- all_models_refit %>%
 
 ```
 # Plot Future Forecast
+interactive graph 
 ```{}
 forecast_tbl %>%
   plot_modeltime_forecast(
@@ -350,6 +409,19 @@ forecast_tbl %>%
     .y_lab = "Number of Passengers"
   ) %>% layout(title = list(text = "Future Forecast", x = 0.5))
 ```
+
+for non interactive graph 
+```{r message=FALSE, warning=FALSE}
+forecast_tbl %>%
+  plot_modeltime_forecast(
+    .title = "Future Forecast",
+    .x_lab = "Date",
+    .y_lab = "Number of Passengers",
+    .interactive = F
+  ) + theme(plot.title = element_text(hjust = 0.5,face = "bold"))
+```
+
+
 # View Forecasted Values
 ```{r}
 forecast_tbl %>%
