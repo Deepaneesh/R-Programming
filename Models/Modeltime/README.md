@@ -160,6 +160,39 @@ column.
 this will plot the time series data, allowing you to visualize trends
 and patterns over time.
 
+## Extracting the Values from date
+
+``` r
+features <- data %>%
+  select(date, value) %>%
+  tk_augment_timeseries_signature()
+```
+
+    ## tk_augment_timeseries_signature(): Using the following .date_var variable: date
+
+``` r
+head(features)
+```
+
+    ## # A tibble: 6 × 30
+    ##   date       value  index.num    diff  year year.iso  half quarter month
+    ##   <date>     <dbl>      <dbl>   <dbl> <int>    <int> <int>   <int> <int>
+    ## 1 1949-01-01   112 -662688000      NA  1949     1948     1       1     1
+    ## 2 1949-02-01   118 -660009600 2678400  1949     1949     1       1     2
+    ## 3 1949-03-01   132 -657590400 2419200  1949     1949     1       1     3
+    ## 4 1949-04-01   129 -654912000 2678400  1949     1949     1       2     4
+    ## 5 1949-05-01   121 -652320000 2592000  1949     1949     1       2     5
+    ## 6 1949-06-01   135 -649641600 2678400  1949     1949     1       2     6
+    ## # ℹ 21 more variables: month.xts <int>, month.lbl <ord>, day <int>, hour <int>,
+    ## #   minute <int>, second <int>, hour12 <int>, am.pm <int>, wday <int>,
+    ## #   wday.xts <int>, wday.lbl <ord>, mday <int>, qday <int>, yday <int>,
+    ## #   mweek <int>, week <int>, week.iso <int>, week2 <int>, week3 <int>,
+    ## #   week4 <int>, mday7 <int>
+
+this will extract the time series features from the date column,
+creating additional columns such as year, month, day, etc. This is
+useful for creating more informative features for modeling.
+
 ## Split the data into training and testing sets
 
 ``` r

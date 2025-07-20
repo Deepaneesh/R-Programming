@@ -71,6 +71,18 @@ data %>% plot_time_series(date, value)
 
 this will plot the time series data, allowing you to visualize trends and patterns over time. 
 
+## Extracting the Values from date 
+```{r}
+features <- data %>%
+  select(date, value) %>%
+  tk_augment_timeseries_signature()
+
+head(features)
+```
+
+this will extract the time series features from the date column, creating additional columns such as year, month, day, etc. This is useful for creating more informative features for modeling.
+
+
 ## Split the data into training and testing sets
 
 ```{r}
