@@ -39,6 +39,7 @@ packages needed:
     library(ggplot2)
     library(zoo)
     library(modeltime.ensemble)
+    library(plotly)
 
 # Example of modeltime usage
 
@@ -141,6 +142,27 @@ library(modeltime.ensemble)
 
     ## Warning: package 'modeltime.resample' was built under R version 4.4.3
 
+``` r
+library(plotly)
+```
+
+    ## Warning: package 'plotly' was built under R version 4.4.3
+
+    ## 
+    ## Attaching package: 'plotly'
+
+    ## The following object is masked from 'package:ggplot2':
+    ## 
+    ##     last_plot
+
+    ## The following object is masked from 'package:stats':
+    ## 
+    ##     filter
+
+    ## The following object is masked from 'package:graphics':
+    ## 
+    ##     layout
+
 ## Load example data
 
 ``` r
@@ -155,7 +177,7 @@ column.
 
 ## plotling the data
 
-    data %>% plot_time_series(date, value)
+    data %>% plot_time_series(date, value,.title="Air Passengers Data", .x_lab="Date", .y_lab="Number of Passengers") %>% layout(title = list(text = "Air Passengers Data", x = 0.5))
 
 this will plot the time series data, allowing you to visualize trends
 and patterns over time.
@@ -357,7 +379,10 @@ this will give you the forecasted values for the testing set.
         new_data = testing(splits),
         actual_data = data
       ) %>%
-      plot_modeltime_forecast()
+      plot_modeltime_forecast(.title = "Forecasted Values vs Actuals",
+                              .x_lab = "Date",
+                              .y_lab = "Number of Passengers") %>%
+      layout(title = list(text = "Forecasted Values vs Actuals", x = 0.5))
 
 This will plot the forecasted values along with the actual values from
 the testing set.
@@ -421,7 +446,10 @@ refitted models.
 ## Plot the future forecast
 
     forecast_future %>%
-      plot_modeltime_forecast()
+      plot_modeltime_forecast(.title = "Future Forecast",
+                              .x_lab = "Date",
+                              .y_lab = "Number of Passengers") %>%
+      layout(title = list(text = "Future Forecast", x = 0.5))
 
 This will plot the forecasted values for the next 12 months, allowing
 you to visualize the expected trends and patterns in the data.
@@ -604,7 +632,11 @@ calibration_tbl %>%
         new_data = testing(splits),
         actual_data = air_df
       ) %>%
-      plot_modeltime_forecast()
+      plot_modeltime_forecast(
+        .title = "Forecasted Values vs Actuals",
+        .x_lab = "Date",
+        .y_lab = "Number of Passengers"
+      ) %>% layout(title = list(text = "Forecasted Values vs Actuals", x = 0.5))
 
 # Refitting for the entire data
 
@@ -640,7 +672,11 @@ forecast_tbl <- all_models_refit %>%
 # Plot Future Forecast
 
     forecast_tbl %>%
-      plot_modeltime_forecast()
+      plot_modeltime_forecast(
+        .title = "Future Forecast",
+        .x_lab = "Date",
+        .y_lab = "Number of Passengers"
+      ) %>% layout(title = list(text = "Future Forecast", x = 0.5))
 
 # View Forecasted Values
 
