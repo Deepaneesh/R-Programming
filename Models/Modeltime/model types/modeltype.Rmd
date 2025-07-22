@@ -62,7 +62,14 @@ There are several time series model available in modeltime package.
 | Temporal Fusion Transformer (TFT)| `modeltime.gluonts`  | `temporal_fusion_transformer()`| `"gluonts_tft"`    |
 | H2O Deep Learning                | `modeltime.h2o`      | `deep_learning()`               | `"h2o"`            |
 
-### 5️⃣ Ensemble Models
+###  5️⃣ Hybrid Models
+
+| Model             | Function         | Engine(s)          | Notes                          |
+|------------------|------------------|--------------------|---------------------------------|
+| ARIMA + XGBoost  | `arima_boost()`  | `"arima_xgboost"`  | Residual modeling using XGBoost|
+| Prophet + XGBoost| `prophet_boost()`| `"prophet_xgboost"`| Residual modeling using XGBoost|
+
+###  Ensemble Models
 
 | Ensemble Type     | Function              | Notes                                |
 |-------------------|-----------------------|--------------------------------------|
