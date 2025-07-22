@@ -435,3 +435,171 @@ forecast_tbl %>%
   head()
 ```
 
+
+## Prediction for multiple Series in a dataset
+
+model time can also be used to forecast multiple time series in a single dataset. Below is an example of how to do this by
+
+
+generating a random dataset with multiple time series
+
+```{r}
+# Generate monthly dates
+dates <- seq(as.Date("2018-01-01"), as.Date("2023-12-01"), by = "month")
+
+# Simulate data for Product A
+product_a <- tibble(
+  id    = "Product A",
+  date  = dates,
+  value = 100 + 1.5 * seq_along(dates) + rnorm(length(dates), mean = 0, sd = 10)
+)
+
+# Simulate data for Product B
+product_b <- tibble(
+  id    = "Product B",
+  date  = dates,
+  value = 80 + 0.5 * seq_along(dates) + sin(seq_along(dates)/3) * 10 + rnorm(length(dates), 0, 5)
+)
+
+# Combine both series
+multi_series_data <- bind_rows(product_a, product_b)
+
+# View
+print(head(multi_series_data, 10))
+```
+# ploting the data by using group by
+
+```{r}
+multi_series_data %>% group_by(id) %>% plot_time_series(date, value,.title="Air Passengers Data", .x_lab="Date", .y_lab="Number of Passengers",.interactive = F)+
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+
+```
+
+# Split the data into training and testing sets
+```{r}
+splits=time_series_split(multi_series_data,assess=6, cumulative = TRUE)
+```
+
+```{r}
+training(splits) %>% group_by(id) %>% plot_time_series(date, value,.interactive = F)
+```
+
+# model Specification 
+
+```{r}
+model_arima <- arima_reg() %>%
+  set_engine("auto_arima") %>%
+  fit(value ~ date, data = training(splits))
+
+model_ets <- exp_smoothing(seasonal_period = 12) %>%
+  set_engine("ets") %>%
+  fit(value ~ date, data = training(splits))
+
+model_prophet <- prophet_reg() %>%
+  set_engine("prophet") %>%
+  fit(value ~ date, data = training(splits))
+
+models_tbl <- modeltime_table(
+  model_arima,
+  model_ets,
+  model_prophet
+)
+
+```
+
+# model summary
+```{r}
+# ARIMA Summary
+models_tbl %>% 
+  pluck_modeltime_model(1)
+
+# ETS Summary
+models_tbl %>% 
+  pluck_modeltime_model(2)
+
+# Prophet Model (no summary method, inspect structure)
+models_tbl %>% 
+  pluck_modeltime_model(3)
+
+```
+# adding testing set to the model
+
+```{r}
+calibration_tbl <- models_tbl %>%
+  modeltime_calibrate(new_data = testing(splits),id="id")
+```
+
+# forcasting for test data
+
+```{r}
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = multi_series_data,
+    id = "id"
+  ) %>% head()
+
+```
+
+# ploting the forecasted values
+
+```{r}
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = multi_series_data,
+    keep_data = TRUE
+  )  %>% group_by(id) %>% 
+  plot_modeltime_forecast(.title = "Forecasted Values vs Actuals",
+                          .x_lab = "Date",
+                          .y_lab = "Number of Passengers",
+                          .interactive = F) 
+```
+
+# Evaluate the models on the testing set
+
+```{r}
+calibration_tbl %>%
+  modeltime_accuracy(acc_by_id = T) %>% group_by(id) %>% 
+  arrange(rmse) 
+```
+use `table_modeltime_accuracy()` for interactive table for accurcy Evaluation 
+
+# Refit for the entire dataset
+```{r}
+refit_tbl <- calibration_tbl %>%
+  modeltime_refit(data = multi_series_data)
+```
+
+# Make future forcast frame
+
+```{r}
+future_tbl <- multi_series_data %>% group_by(id) %>% 
+  future_frame(.date_var = date, .length_out = 12)
+```
+
+# predicting the forcated value 
+
+```{r}
+forecast_future <- refit_tbl %>%
+  modeltime_forecast(new_data = future_tbl, actual_data = multi_series_data,conf_by_id = T)
+
+```
+
+# ploting the forcated Value
+
+```{r}
+forecast_future %>% group_by(id) %>%
+  plot_modeltime_forecast(.title = "Future Forecast",
+                          .x_lab = "Date",
+                          .y_lab = "Number of Passengers",
+                          .interactive = F,
+                          .plotly_slider = F)
+```
+
+# Viewing the forcasted Value
+
+```{r}
+forecast_future %>% head()
+```
+

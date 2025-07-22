@@ -802,3 +802,331 @@ forecast_tbl %>%
     ## 4        NA ACTUAL      actual 1949-04-01    129
     ## 5        NA ACTUAL      actual 1949-05-01    121
     ## 6        NA ACTUAL      actual 1949-06-01    135
+
+## Prediction for multiple Series in a dataset
+
+model time can also be used to forecast multiple time series in a single
+dataset. Below is an example of how to do this by
+
+generating a random dataset with multiple time series
+
+``` r
+# Generate monthly dates
+dates <- seq(as.Date("2018-01-01"), as.Date("2023-12-01"), by = "month")
+
+# Simulate data for Product A
+product_a <- tibble(
+  id    = "Product A",
+  date  = dates,
+  value = 100 + 1.5 * seq_along(dates) + rnorm(length(dates), mean = 0, sd = 10)
+)
+
+# Simulate data for Product B
+product_b <- tibble(
+  id    = "Product B",
+  date  = dates,
+  value = 80 + 0.5 * seq_along(dates) + sin(seq_along(dates)/3) * 10 + rnorm(length(dates), 0, 5)
+)
+
+# Combine both series
+multi_series_data <- bind_rows(product_a, product_b)
+
+# View
+print(head(multi_series_data, 10))
+```
+
+    ## # A tibble: 10 × 3
+    ##    id        date       value
+    ##    <chr>     <date>     <dbl>
+    ##  1 Product A 2018-01-01 102. 
+    ##  2 Product A 2018-02-01 100. 
+    ##  3 Product A 2018-03-01 101. 
+    ##  4 Product A 2018-04-01 111. 
+    ##  5 Product A 2018-05-01 109. 
+    ##  6 Product A 2018-06-01  99.5
+    ##  7 Product A 2018-07-01 107. 
+    ##  8 Product A 2018-08-01 106. 
+    ##  9 Product A 2018-09-01 120. 
+    ## 10 Product A 2018-10-01 111.
+
+# ploting the data by using group by
+
+``` r
+multi_series_data %>% group_by(id) %>% plot_time_series(date, value,.title="Air Passengers Data", .x_lab="Date", .y_lab="Number of Passengers",.interactive = F)+
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"))
+```
+
+![](modeltime_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
+
+# Split the data into training and testing sets
+
+``` r
+splits=time_series_split(multi_series_data,assess=6, cumulative = TRUE)
+```
+
+    ## Using date_var: date
+
+    ## Data is not ordered by the 'date_var'. Resamples will be arranged by `date`.
+
+    ## Overlapping Timestamps Detected. Processing overlapping time series together using sliding windows.
+
+``` r
+training(splits) %>% group_by(id) %>% plot_time_series(date, value,.interactive = F)
+```
+
+![](modeltime_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
+
+# model Specification
+
+``` r
+model_arima <- arima_reg() %>%
+  set_engine("auto_arima") %>%
+  fit(value ~ date, data = training(splits))
+```
+
+    ## frequency = 12 observations per 1 year
+
+``` r
+model_ets <- exp_smoothing(seasonal_period = 12) %>%
+  set_engine("ets") %>%
+  fit(value ~ date, data = training(splits))
+
+model_prophet <- prophet_reg() %>%
+  set_engine("prophet") %>%
+  fit(value ~ date, data = training(splits))
+```
+
+    ## Disabling weekly seasonality. Run prophet with weekly.seasonality=TRUE to override this.
+
+    ## Disabling daily seasonality. Run prophet with daily.seasonality=TRUE to override this.
+
+``` r
+models_tbl <- modeltime_table(
+  model_arima,
+  model_ets,
+  model_prophet
+)
+```
+
+# model summary
+
+``` r
+# ARIMA Summary
+models_tbl %>% 
+  pluck_modeltime_model(1)
+```
+
+    ## parsnip model object
+    ## 
+    ## Series: outcome 
+    ## ARIMA(0,0,4)(0,1,1)[12] with drift 
+    ## 
+    ## Coefficients:
+    ##           ma1     ma2      ma3     ma4     sma1   drift
+    ##       -0.2760  0.1969  -0.2712  0.4477  -0.6949  0.4963
+    ## s.e.   0.0903  0.0807   0.0830  0.0997   0.0810  0.0317
+    ## 
+    ## sigma^2 = 94.45:  log likelihood = -444.63
+    ## AIC=903.27   AICc=904.27   BIC=922.78
+
+``` r
+# ETS Summary
+models_tbl %>% 
+  pluck_modeltime_model(2)
+```
+
+    ## parsnip model object
+    ## 
+    ## ETS(M,A,M) 
+    ## 
+    ## Call:
+    ## forecast::ets(y = outcome, model = model_ets, damped = damping_ets, 
+    ##     alpha = alpha, beta = beta, gamma = gamma)
+    ## 
+    ##   Smoothing parameters:
+    ##     alpha = 0.041 
+    ##     beta  = 1e-04 
+    ##     gamma = 1e-04 
+    ## 
+    ##   Initial states:
+    ##     l = 96.7896 
+    ##     b = 0.4675 
+    ##     s = 0.7869 1.2262 0.8032 1.2235 0.7939 1.208
+    ##            0.8029 1.219 0.7899 1.2084 0.7679 1.1701
+    ## 
+    ##   sigma:  0.0925
+    ## 
+    ##      AIC     AICc      BIC 
+    ## 1298.508 1303.876 1347.516
+
+``` r
+# Prophet Model (no summary method, inspect structure)
+models_tbl %>% 
+  pluck_modeltime_model(3)
+```
+
+    ## parsnip model object
+    ## 
+    ## PROPHET Model
+    ## - growth: 'linear'
+    ## - n.changepoints: 25
+    ## - changepoint.range: 0.8
+    ## - yearly.seasonality: 'auto'
+    ## - weekly.seasonality: 'auto'
+    ## - daily.seasonality: 'auto'
+    ## - seasonality.mode: 'additive'
+    ## - changepoint.prior.scale: 0.05
+    ## - seasonality.prior.scale: 10
+    ## - holidays.prior.scale: 10
+    ## - logistic_cap: NULL
+    ## - logistic_floor: NULL
+    ## - extra_regressors: 0
+
+# adding testing set to the model
+
+``` r
+calibration_tbl <- models_tbl %>%
+  modeltime_calibrate(new_data = testing(splits),id="id")
+```
+
+# forcasting for test data
+
+``` r
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = multi_series_data,
+    id = "id"
+  ) %>% head()
+```
+
+    ## # Forecast Results
+    ## 
+
+    ## Conf Method: conformal_default | Conf Interval: 0.95 | Conf By ID: FALSE
+    ## (GLOBAL CONFIDENCE)
+
+    ## # A tibble: 6 × 7
+    ##   .model_id .model_desc .key   .index     .value .conf_lo .conf_hi
+    ##       <int> <chr>       <fct>  <date>      <dbl>    <dbl>    <dbl>
+    ## 1        NA ACTUAL      actual 2018-01-01  102.        NA       NA
+    ## 2        NA ACTUAL      actual 2018-02-01  100.        NA       NA
+    ## 3        NA ACTUAL      actual 2018-03-01  101.        NA       NA
+    ## 4        NA ACTUAL      actual 2018-04-01  111.        NA       NA
+    ## 5        NA ACTUAL      actual 2018-05-01  109.        NA       NA
+    ## 6        NA ACTUAL      actual 2018-06-01   99.5       NA       NA
+
+# ploting the forecasted values
+
+``` r
+calibration_tbl %>%
+  modeltime_forecast(
+    new_data = testing(splits),
+    actual_data = multi_series_data,
+    keep_data = TRUE
+  )  %>% group_by(id) %>% 
+  plot_modeltime_forecast(.title = "Forecasted Values vs Actuals",
+                          .x_lab = "Date",
+                          .y_lab = "Number of Passengers",
+                          .interactive = F) 
+```
+
+    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+    ## -Inf
+    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+    ## -Inf
+
+![](modeltime_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
+
+# Evaluate the models on the testing set
+
+``` r
+calibration_tbl %>%
+  modeltime_accuracy(acc_by_id = T) %>% group_by(id) %>% 
+  arrange(rmse) 
+```
+
+    ## # A tibble: 6 × 10
+    ## # Groups:   id [2]
+    ##   .model_id .model_desc         .type id      mae  mape  mase smape  rmse    rsq
+    ##       <int> <chr>               <chr> <chr> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
+    ## 1         1 ARIMA(0,0,4)(0,1,1… Test  Prod…  6.56  3.24 0.933  3.29  7.55 0.322 
+    ## 2         2 ETS(M,A,M)          Test  Prod… 12.4   6.09 1.76   6.33 14.5  0.0978
+    ## 3         2 ETS(M,A,M)          Test  Prod… 17.0  16.1  3.05  14.7  18.1  0.218 
+    ## 4         1 ARIMA(0,0,4)(0,1,1… Test  Prod… 16.6  15.7  2.96  14.3  18.4  0.217 
+    ## 5         3 PROPHET             Test  Prod… 40.1  19.9  5.70  22.2  41.2  0.120 
+    ## 6         3 PROPHET             Test  Prod… 52.4  49.1  9.37  39.2  52.8  0.0774
+
+use `table_modeltime_accuracy()` for interactive table for accurcy
+Evaluation
+
+# Refit for the entire dataset
+
+``` r
+refit_tbl <- calibration_tbl %>%
+  modeltime_refit(data = multi_series_data)
+```
+
+    ## frequency = 12 observations per 1 year
+
+    ## Disabling weekly seasonality. Run prophet with weekly.seasonality=TRUE to override this.
+
+    ## Disabling daily seasonality. Run prophet with daily.seasonality=TRUE to override this.
+
+# Make future forcast frame
+
+``` r
+future_tbl <- multi_series_data %>% group_by(id) %>% 
+  future_frame(.date_var = date, .length_out = 12)
+```
+
+# predicting the forcated value
+
+``` r
+forecast_future <- refit_tbl %>%
+  modeltime_forecast(new_data = future_tbl, actual_data = multi_series_data,conf_by_id = T)
+```
+
+    ## Adding missing grouping variables: `id`
+    ## Adding missing grouping variables: `id`
+    ## Adding missing grouping variables: `id`
+
+# ploting the forcated Value
+
+``` r
+forecast_future %>% group_by(id) %>%
+  plot_modeltime_forecast(.title = "Future Forecast",
+                          .x_lab = "Date",
+                          .y_lab = "Number of Passengers",
+                          .interactive = F,
+                          .plotly_slider = F)
+```
+
+    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+    ## -Inf
+    ## Warning in max(ids, na.rm = TRUE): no non-missing arguments to max; returning
+    ## -Inf
+
+![](modeltime_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
+
+# Viewing the forcasted Value
+
+``` r
+forecast_future %>% head()
+```
+
+    ## # Forecast Results
+    ## 
+
+    ## Conf Method: conformal_default | Conf Interval: 0.95 | Conf By ID: TRUE (LOCAL
+    ## CONFIDENCE)
+
+    ## # A tibble: 6 × 8
+    ##   .model_id .model_desc .key   .index     .value .conf_lo .conf_hi id       
+    ##       <int> <chr>       <fct>  <date>      <dbl>    <dbl>    <dbl> <chr>    
+    ## 1        NA ACTUAL      actual 2018-01-01  102.        NA       NA Product A
+    ## 2        NA ACTUAL      actual 2018-02-01  100.        NA       NA Product A
+    ## 3        NA ACTUAL      actual 2018-03-01  101.        NA       NA Product A
+    ## 4        NA ACTUAL      actual 2018-04-01  111.        NA       NA Product A
+    ## 5        NA ACTUAL      actual 2018-05-01  109.        NA       NA Product A
+    ## 6        NA ACTUAL      actual 2018-06-01   99.5       NA       NA Product A
