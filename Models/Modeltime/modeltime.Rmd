@@ -201,6 +201,13 @@ calibration_tbl %>%
 ```
 This will give you a table with the accuracy metrics for each model, sorted by RMSE (Root Mean Square Error).
 
+To visualize the accuracy metrics, you can use the `table_modeltime_accuracy()` function:
+```{}
+calibration_tbl %>%
+  modeltime_accuracy() %>%
+  table_modeltime_accuracy() 
+```
+
 ## Refitting 
 
 ```{r}

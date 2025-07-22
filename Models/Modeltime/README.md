@@ -64,7 +64,7 @@ library(tidymodels)
     ## ✔ dials        1.4.0     ✔ rsample      1.3.0
     ## ✔ dplyr        1.1.4     ✔ tibble       3.2.1
     ## ✔ ggplot2      3.5.2     ✔ tidyr        1.3.1
-    ## ✔ infer        1.0.8     ✔ tune         1.3.0
+    ## ✔ infer        1.0.9     ✔ tune         1.3.0
     ## ✔ modeldata    1.4.0     ✔ workflows    1.2.0
     ## ✔ parsnip      1.3.2     ✔ workflowsets 1.1.1
     ## ✔ purrr        1.0.4     ✔ yardstick    1.3.2
@@ -442,6 +442,13 @@ calibration_tbl %>%
 
 This will give you a table with the accuracy metrics for each model,
 sorted by RMSE (Root Mean Square Error).
+
+To visualize the accuracy metrics, you can use the
+`table_modeltime_accuracy()` function:
+
+    calibration_tbl %>%
+      modeltime_accuracy() %>%
+      table_modeltime_accuracy() 
 
 ## Refitting
 
