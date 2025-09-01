@@ -582,7 +582,7 @@ future_tbl <- multi_series_data %>% group_by(id) %>%
 
 ```{r}
 forecast_future <- refit_tbl %>%
-  modeltime_forecast(new_data = future_tbl, actual_data = multi_series_data,conf_by_id = T)
+  modeltime_forecast(new_data = future_tbl, actual_data = multi_series_data,id = "id",conf_by_id = T)
 
 ```
 

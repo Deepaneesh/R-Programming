@@ -838,16 +838,16 @@ print(head(multi_series_data, 10))
     ## # A tibble: 10 × 3
     ##    id        date       value
     ##    <chr>     <date>     <dbl>
-    ##  1 Product A 2018-01-01 102. 
-    ##  2 Product A 2018-02-01 100. 
-    ##  3 Product A 2018-03-01 101. 
-    ##  4 Product A 2018-04-01 111. 
-    ##  5 Product A 2018-05-01 109. 
-    ##  6 Product A 2018-06-01  99.5
-    ##  7 Product A 2018-07-01 107. 
-    ##  8 Product A 2018-08-01 106. 
-    ##  9 Product A 2018-09-01 120. 
-    ## 10 Product A 2018-10-01 111.
+    ##  1 Product A 2018-01-01 120. 
+    ##  2 Product A 2018-02-01 116. 
+    ##  3 Product A 2018-03-01  93.0
+    ##  4 Product A 2018-04-01 103. 
+    ##  5 Product A 2018-05-01 110. 
+    ##  6 Product A 2018-06-01 134. 
+    ##  7 Product A 2018-07-01 103. 
+    ##  8 Product A 2018-08-01  92.8
+    ##  9 Product A 2018-09-01 108. 
+    ## 10 Product A 2018-10-01 129.
 
 # ploting the data by using group by
 
@@ -919,15 +919,15 @@ models_tbl %>%
     ## parsnip model object
     ## 
     ## Series: outcome 
-    ## ARIMA(0,0,4)(0,1,1)[12] with drift 
+    ## ARIMA(0,0,2)(2,1,2)[12] with drift 
     ## 
     ## Coefficients:
-    ##           ma1     ma2      ma3     ma4     sma1   drift
-    ##       -0.2760  0.1969  -0.2712  0.4477  -0.6949  0.4963
-    ## s.e.   0.0903  0.0807   0.0830  0.0997   0.0810  0.0317
+    ##           ma1     ma2     sar1     sar2     sma1    sma2   drift
+    ##       -0.0314  0.2847  -0.4202  -0.7038  -0.2038  0.5347  0.4928
+    ## s.e.   0.0997  0.0894   0.1649   0.1234   0.2114  0.1754  0.0615
     ## 
-    ## sigma^2 = 94.45:  log likelihood = -444.63
-    ## AIC=903.27   AICc=904.27   BIC=922.78
+    ## sigma^2 = 107.5:  log likelihood = -454.59
+    ## AIC=925.19   AICc=926.48   BIC=947.49
 
 ``` r
 # ETS Summary
@@ -937,27 +937,25 @@ models_tbl %>%
 
     ## parsnip model object
     ## 
-    ## ETS(M,A,M) 
+    ## ETS(M,N,M) 
     ## 
     ## Call:
     ## forecast::ets(y = outcome, model = model_ets, damped = damping_ets, 
     ##     alpha = alpha, beta = beta, gamma = gamma)
     ## 
     ##   Smoothing parameters:
-    ##     alpha = 0.041 
-    ##     beta  = 1e-04 
-    ##     gamma = 1e-04 
+    ##     alpha = 0.2367 
+    ##     gamma = 0.2862 
     ## 
     ##   Initial states:
-    ##     l = 96.7896 
-    ##     b = 0.4675 
-    ##     s = 0.7869 1.2262 0.8032 1.2235 0.7939 1.208
-    ##            0.8029 1.219 0.7899 1.2084 0.7679 1.1701
+    ##     l = 108.9712 
+    ##     s = 0.7861 1.2692 0.8056 1.1669 0.8087 1.1888
+    ##            0.8597 1.1584 0.8137 1.1522 0.8458 1.1448
     ## 
-    ##   sigma:  0.0925
+    ##   sigma:  0.1004
     ## 
     ##      AIC     AICc      BIC 
-    ## 1298.508 1303.876 1347.516
+    ## 1313.245 1317.383 1356.487
 
 ``` r
 # Prophet Model (no summary method, inspect structure)
@@ -1009,12 +1007,12 @@ calibration_tbl %>%
     ## # A tibble: 6 × 7
     ##   .model_id .model_desc .key   .index     .value .conf_lo .conf_hi
     ##       <int> <chr>       <fct>  <date>      <dbl>    <dbl>    <dbl>
-    ## 1        NA ACTUAL      actual 2018-01-01  102.        NA       NA
-    ## 2        NA ACTUAL      actual 2018-02-01  100.        NA       NA
-    ## 3        NA ACTUAL      actual 2018-03-01  101.        NA       NA
-    ## 4        NA ACTUAL      actual 2018-04-01  111.        NA       NA
-    ## 5        NA ACTUAL      actual 2018-05-01  109.        NA       NA
-    ## 6        NA ACTUAL      actual 2018-06-01   99.5       NA       NA
+    ## 1        NA ACTUAL      actual 2018-01-01  120.        NA       NA
+    ## 2        NA ACTUAL      actual 2018-02-01  116.        NA       NA
+    ## 3        NA ACTUAL      actual 2018-03-01   93.0       NA       NA
+    ## 4        NA ACTUAL      actual 2018-04-01  103.        NA       NA
+    ## 5        NA ACTUAL      actual 2018-05-01  110.        NA       NA
+    ## 6        NA ACTUAL      actual 2018-06-01  134.        NA       NA
 
 # ploting the forecasted values
 
@@ -1048,14 +1046,14 @@ calibration_tbl %>%
 
     ## # A tibble: 6 × 10
     ## # Groups:   id [2]
-    ##   .model_id .model_desc         .type id      mae  mape  mase smape  rmse    rsq
-    ##       <int> <chr>               <chr> <chr> <dbl> <dbl> <dbl> <dbl> <dbl>  <dbl>
-    ## 1         1 ARIMA(0,0,4)(0,1,1… Test  Prod…  6.56  3.24 0.933  3.29  7.55 0.322 
-    ## 2         2 ETS(M,A,M)          Test  Prod… 12.4   6.09 1.76   6.33 14.5  0.0978
-    ## 3         2 ETS(M,A,M)          Test  Prod… 17.0  16.1  3.05  14.7  18.1  0.218 
-    ## 4         1 ARIMA(0,0,4)(0,1,1… Test  Prod… 16.6  15.7  2.96  14.3  18.4  0.217 
-    ## 5         3 PROPHET             Test  Prod… 40.1  19.9  5.70  22.2  41.2  0.120 
-    ## 6         3 PROPHET             Test  Prod… 52.4  49.1  9.37  39.2  52.8  0.0774
+    ##   .model_id .model_desc        .type id      mae  mape  mase smape  rmse     rsq
+    ##       <int> <chr>              <chr> <chr> <dbl> <dbl> <dbl> <dbl> <dbl>   <dbl>
+    ## 1         2 ETS(M,N,M)         Test  Prod…  8.91  8.39  2.12  8.03  9.17 0.657  
+    ## 2         1 ARIMA(0,0,2)(2,1,… Test  Prod…  9.94  9.32  2.37  8.88 10.2  0.604  
+    ## 3         1 ARIMA(0,0,2)(2,1,… Test  Prod… 11.0   5.21  1.31  5.43 14.2  0.00639
+    ## 4         2 ETS(M,N,M)         Test  Prod… 13.6   6.42  1.62  6.69 15.6  0.00414
+    ## 5         3 PROPHET            Test  Prod… 46.7  22.3   5.59 25.2  47.3  0.00459
+    ## 6         3 PROPHET            Test  Prod… 55.0  51.5  13.1  40.9  55.2  0.0251
 
 use `table_modeltime_accuracy()` for interactive table for accurcy
 Evaluation
@@ -1084,7 +1082,7 @@ future_tbl <- multi_series_data %>% group_by(id) %>%
 
 ``` r
 forecast_future <- refit_tbl %>%
-  modeltime_forecast(new_data = future_tbl, actual_data = multi_series_data,conf_by_id = T)
+  modeltime_forecast(new_data = future_tbl, actual_data = multi_series_data,id = "id",conf_by_id = T)
 ```
 
     ## Adding missing grouping variables: `id`
@@ -1124,9 +1122,9 @@ forecast_future %>% head()
     ## # A tibble: 6 × 8
     ##   .model_id .model_desc .key   .index     .value .conf_lo .conf_hi id       
     ##       <int> <chr>       <fct>  <date>      <dbl>    <dbl>    <dbl> <chr>    
-    ## 1        NA ACTUAL      actual 2018-01-01  102.        NA       NA Product A
-    ## 2        NA ACTUAL      actual 2018-02-01  100.        NA       NA Product A
-    ## 3        NA ACTUAL      actual 2018-03-01  101.        NA       NA Product A
-    ## 4        NA ACTUAL      actual 2018-04-01  111.        NA       NA Product A
-    ## 5        NA ACTUAL      actual 2018-05-01  109.        NA       NA Product A
-    ## 6        NA ACTUAL      actual 2018-06-01   99.5       NA       NA Product A
+    ## 1        NA ACTUAL      actual 2018-01-01  120.        NA       NA Product A
+    ## 2        NA ACTUAL      actual 2018-02-01  116.        NA       NA Product A
+    ## 3        NA ACTUAL      actual 2018-03-01   93.0       NA       NA Product A
+    ## 4        NA ACTUAL      actual 2018-04-01  103.        NA       NA Product A
+    ## 5        NA ACTUAL      actual 2018-05-01  110.        NA       NA Product A
+    ## 6        NA ACTUAL      actual 2018-06-01  134.        NA       NA Product A
