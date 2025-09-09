@@ -26,3 +26,6 @@ colourdata %>%
   kable("html", escape = FALSE) %>%
   kable_styling(full_width = FALSE)
 ```
+
+This code is used to select the specific colour by using hex code you
+use filter options inbetween for better selection
