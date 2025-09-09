@@ -1,0 +1,38 @@
+---
+title: "Colour Name & Hex code"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(tidyverse)
+
+```
+
+
+```{r}
+
+colourdata <- data.frame(
+  colourname = colors(),
+  hex_code   = rgb(t(col2rgb(colors())), maxColorValue = 255)
+)
+colourdata %>% nrow()
+
+```
+
+```{ message=FALSE, warning=FALSE}
+colourdata %>% 
+  mutate(colour = cell_spec(colourname, "html", 
+                            background = hex_code, color = "white")) %>%
+  select(colourname, hex_code, colour) %>%
+  kable("html", escape = FALSE) %>%
+  kable_styling(full_width = FALSE)
+```
+
+
