@@ -1,13 +1,18 @@
 ---
 title: "Colour Name & Hex code"
-output: github_document
+output: 
+ html_document:
+   code_folding: hide
+   code_download: TRUE
+   theme: readable
+   
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r message=FALSE, warning=FALSE}
+```{r message=TRUE, warning=TRUE, include=FALSE}
 library(dplyr)
 library(knitr)
 library(kableExtra)
@@ -16,31 +21,19 @@ library(DT)
 ```
 
 
-```{r}
+```{r echo=FALSE}
 
 colourdata <- data.frame(
   colourname = colors(),
   hex_code   = rgb(t(col2rgb(colors())), maxColorValue = 255)
 )
-colourdata %>% nrow()
+
 
 ```
 
-```{ message=FALSE, warning=FALSE}
-colourdata %>% 
-  mutate(colour = cell_spec(colourname, "html", 
-                            background = hex_code, color = "white")) %>%
-  select(colourname, hex_code, colour) %>%
-  kable("html", escape = FALSE) %>%
-  kable_styling(full_width = FALSE)
-```
-
-This code is used to select the specific colour by using hex code 
-you use filter options inbetween for better selection 
 
 
-
-```{}
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 
 # Create styled HTML cell
 datatable_data <- colourdata %>%
@@ -74,6 +67,12 @@ datatable(
 
 
 ```
+
+
+This code is used to select the specific colour by using hex code 
+you use filter options inbetween for better selection 
+
+
 
 Viewing this in a datatable structure
 
