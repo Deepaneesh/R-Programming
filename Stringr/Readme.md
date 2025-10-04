@@ -1,0 +1,48 @@
+
+| Function | Explanation | Example | Output |
+|----|----|----|----|
+| **String Converting** |  |  |  |
+| `str_to_upper()` | Converts text to uppercase | `str_to_upper("apple")` | `"APPLE"` |
+| `str_to_lower()` | Converts text to lowercase | `str_to_lower("APPLE")` | `"apple"` |
+| `str_to_title()` | Converts first letter of each word to uppercase | `str_to_title("hello world")` | `"Hello World"` |
+| `str_to_sentence()` | Capitalizes first letter of first word | `str_to_sentence("welcome to r")` | `"Welcome to r"` |
+| **Joining Text** |  |  |  |
+| `str_c()` | Concatenates strings | `str_c("apple", "pie")` | `"applepie"` |
+| `paste0()` | Concatenates strings (base R version) | `paste0("R", "stats")` | `"Rstats"` |
+| `str_flatten(letters[1:3], ", ")` | Combines multiple strings into one with separator | `str_flatten(letters[1:3], ", ")` | `"a, b, c"` |
+| `str_glue("My name is {name}, not {{name}}.")` | Embeds R variables inside strings | `name <- "Deepaneesh"; str_glue("My name is {name}")` | `"My name is Deepaneesh"` |
+| **String Counting** |  |  |  |
+| `str_count(string, pattern)` | Counts occurrences of pattern | `str_count("apple", "p")` | `2` |
+| — | — | `fruit <- c("apple", "banana", "pear", "pineapple"); str_count(fruit, "a")` | `[1] 1 3 1 1` |
+| **String Detection** |  |  |  |
+| `str_detect(string, pattern)` | Returns TRUE if pattern exists | `str_detect("apple", "p")` | `TRUE` |
+| `str_starts(string, pattern)` | Checks if string starts with pattern | `str_starts("apple", "a")` | `TRUE` |
+| `str_ends(string, pattern)` | Checks if string ends with pattern | `str_ends("apple", "e")` | `TRUE` |
+| `str_escape(string)` | Escapes special regex characters | `str_escape(".")` | `"\\."` |
+| `str_detect(c("a", "."), ".")` | Detects `.` (matches any char) | `[1] TRUE TRUE` |  |
+| `str_detect(c("a", "."), str_escape("."))` | Escaped dot matches literal `.` | `[1] FALSE TRUE` |  |
+| **String Duplicating** |  |  |  |
+| `str_dup(string, times)` | Duplicates the string | `str_dup("ha", 3)` | `"hahaha"` |
+| **Comparison** |  |  |  |
+| `str_equal(x, y, ignore_case = FALSE)` | Compares two strings | `str_equal("R", "r")` | `FALSE` |
+| `str_equal("R", "r", ignore_case = TRUE)` | Case-insensitive comparison | `TRUE` |  |
+| **Extracting** |  |  |  |
+| `str_extract(string, pattern)` | Extracts first match | `str_extract("apple123", "\\d+")` | `"123"` |
+| `str_extract_all(string, pattern)` | Extracts all matches | `str_extract_all("a1 b2 c3", "\\d")` | `[[1]] "1" "2" "3"` |
+| `str_extract(shopping_list, "\\d")` | Extracts digits from each item | `shopping_list <- c("apples x4", "bag of flour", "milk x2")` | `[1] "4" NA "2"` |
+| **String Features** |  |  |  |
+| `str_view(x)` | View strings visually (HTML viewer) | `str_view("apple")` | *(HTML view)* |
+| `str_width(x)` | Display width of strings | `str_width("apple")` | `5` |
+| `str_length(x)` | Counts number of characters | `str_length("banana")` | `6` |
+| **Matching and Finding** |  |  |  |
+| `str_like(string, pattern)` | SQL-style pattern match | `str_like("apple", "app%")` | `TRUE` |
+| `str_locate(string, pattern)` | Gives start and end positions of match | `str_locate("banana", "an")` | `start=2, end=3` |
+| **String Sorting** |  |  |  |
+| `str_sort(x)` | Sorts strings alphabetically | `str_sort(c("pear", "apple"))` | `"apple" "pear"` |
+| **Trimming and Splitting** |  |  |  |
+| `str_split(string, pattern)` | Splits string by pattern | `str_split("a,b,c", ",")` | `[[1]] "a" "b" "c"` |
+| `str_trim(string, side)` | Removes whitespace (left/right/both) | `str_trim("  apple  ")` | `"apple"` |
+| `str_squish(string)` | Removes extra spaces between words | `str_squish(" apple   pie ")` | `"apple pie"` |
+| **Substrings and Locations** |  |  |  |
+| `str_sub(string, start, end)` | Extract substring by position | `str_sub("apple", 2, 4)` | `"ppl"` |
+| `str_which(fruit, "e")` | Gives indices where pattern detected | `str_which(fruit, "e")` | `[1] 1 3 4` |
