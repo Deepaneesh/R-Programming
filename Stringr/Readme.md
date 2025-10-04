@@ -1,4 +1,17 @@
 
+# About the `stringr` Package
+
+The `stringr` package in R, developed by Hadley Wickham, is part of the
+**tidyverse** collection and provides a consistent and user-friendly set
+of functions for working with character strings. It simplifies common
+string operations such as detecting patterns, extracting substrings,
+counting matches, replacing text, and changing letter cases. All
+functions in `stringr` start with the prefix `str_`, making them easy to
+remember and use. The package is built on top of **base R string
+functions** and the **stringi** package, providing better consistency,
+handling of missing values, and improved performance for text
+manipulation tasks.
+
 | Function | Explanation | Example | Output |
 |----|----|----|----|
 | **String Converting** |  |  |  |
