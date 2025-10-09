@@ -15,5 +15,6 @@ install.packages("fracdiff")
 install.packages("wavelets")
 install.packages("rugarch")
 install.packages("rmgarch")
-install.packages("modeltime")
 install.packages("tidymodels")
+install.packages("modeltime")
+
