@@ -239,7 +239,37 @@ date + duration(3600)         # "2025-07-17 01:00:00 UTC"
 
     ## [1] "2025-07-17 01:00:00 UTC"
 
-# 7. Intervals and Durations
+# 7. Differences and Durations
+
+| Function | Description | Example |
+|----|----|----|
+| `difftime()` | Base R (works with lubridate too) | `difftime(ymd("2025-10-16"), ymd("2025-01-01"))` |
+| `time_length()` | Express difference in specific units | `time_length(interval(ymd("2025-01-01"), ymd("2025-10-16")), "month")` |
+| `make_difftime()` | Construct difftime directly | `make_difftime(hour = 1, min = 20)` |
+
+``` r
+difftime(ymd("2025-10-16"), ymd("2025-01-01"),units = "weeks")
+```
+
+    ## Time difference of 41.14286 weeks
+
+units can be **“auto”, “secs”, “mins”, “hours”, “days”, or “weeks”.**
+
+``` r
+time_length(interval(ymd("2025-01-01"), ymd("2025-10-16")), unit = "month") 
+```
+
+    ## [1] 9.483871
+
+units can be anything
+
+``` r
+make_difftime(hour = 1, min = 20)
+```
+
+    ## Time difference of 1.333333 hours
+
+# 8. Intervals and Durations
 
 ✅ Functions:
 
@@ -263,7 +293,7 @@ target %within% int
 
     ## [1] TRUE
 
-# 8. Other Useful Functions
+# 9. Other Useful Functions
 
 Below are some handy functions in `lubridate` for working with dates and
 times:
@@ -281,13 +311,13 @@ times:
 today()
 ```
 
-    ## [1] "2025-07-17"
+    ## [1] "2025-10-16"
 
 ``` r
 now()
 ```
 
-    ## [1] "2025-07-17 22:25:31 IST"
+    ## [1] "2025-10-16 19:32:24 IST"
 
 ``` r
 leap_year(2024)
@@ -332,13 +362,13 @@ make_datetime(2025, 12, 31, 14, 30, 0)
 Sys.Date()          # "2025-07-17"
 ```
 
-    ## [1] "2025-07-17"
+    ## [1] "2025-10-16"
 
 ``` r
 Sys.time()          
 ```
 
-    ## [1] "2025-07-17 22:25:31 IST"
+    ## [1] "2025-10-16 19:32:24 IST"
 
 ## Formate changing
 
@@ -346,19 +376,19 @@ Sys.time()
 format(Sys.time(), "%Y-%m-%d")   # Just the date
 ```
 
-    ## [1] "2025-07-17"
+    ## [1] "2025-10-16"
 
 ``` r
 format(Sys.time(), "%H:%M:%S")   # Just the time
 ```
 
-    ## [1] "22:25:31"
+    ## [1] "19:32:24"
 
 ``` r
 format(Sys.time(), "%Y-%m-%d %H:%M:%S") # Full date-time  
 ```
 
-    ## [1] "2025-07-17 22:25:31"
+    ## [1] "2025-10-16 19:32:24"
 
 ## Adding
 
@@ -366,64 +396,64 @@ format(Sys.time(), "%Y-%m-%d %H:%M:%S") # Full date-time
 Sys.Date()+ 1  # Adds one day
 ```
 
-    ## [1] "2025-07-18"
+    ## [1] "2025-10-17"
 
 ``` r
 Sys.Date()+ month(1)  # Adds one month
 ```
 
-    ## [1] "2025-07-18"
+    ## [1] "2025-10-17"
 
 ``` r
 Sys.Date() + years(1)  # Adds one year
 ```
 
-    ## [1] "2026-07-17"
+    ## [1] "2026-10-16"
 
 ``` r
 Sys.Date() + days(10)  # Adds 10 days
 ```
 
-    ## [1] "2025-07-27"
+    ## [1] "2025-10-26"
 
 ``` r
 Sys.time() + hours(2)  # Adds 2 hours
 ```
 
-    ## [1] "2025-07-18 00:25:31 IST"
+    ## [1] "2025-10-16 21:32:24 IST"
 
 ``` r
 Sys.time() + minutes(30)  # Adds 30 minutes
 ```
 
-    ## [1] "2025-07-17 22:55:31 IST"
+    ## [1] "2025-10-16 20:02:24 IST"
 
 ``` r
 Sys.time() + seconds(45)  # Adds 45 seconds
 ```
 
-    ## [1] "2025-07-17 22:26:16 IST"
+    ## [1] "2025-10-16 19:33:09 IST"
 
 ``` r
 Sys.time() + days(1)  # Adds 1 day
 ```
 
-    ## [1] "2025-07-18 22:25:31 IST"
+    ## [1] "2025-10-17 19:32:24 IST"
 
 ``` r
 Sys.time() + weeks(1)  # Adds 1 week
 ```
 
-    ## [1] "2025-07-24 22:25:31 IST"
+    ## [1] "2025-10-23 19:32:24 IST"
 
 ``` r
 Sys.time() + months(1)  # Adds 1 month
 ```
 
-    ## [1] "2025-08-17 22:25:31 IST"
+    ## [1] "2025-11-16 19:32:24 IST"
 
 ``` r
 Sys.time() + years(1)  # Adds 1 year
 ```
 
-    ## [1] "2026-07-17 22:25:31 IST"
+    ## [1] "2026-10-16 19:32:24 IST"
