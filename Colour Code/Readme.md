@@ -12,7 +12,7 @@ library(DT)
 ``` r
 colourdata <- data.frame(
   colourname = colors(),
-  hex_code   = rgb(t(col2rgb(colors())), maxColorValue = 255)
+  hex_code   = colors() %>% col2rgb() %>% t() %>% rgb(maxColorValue = 255)
 )
 colourdata %>% nrow()
 ```
