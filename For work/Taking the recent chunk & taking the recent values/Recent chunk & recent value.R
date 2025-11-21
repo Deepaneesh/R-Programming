@@ -70,53 +70,47 @@ remove_country_if_recent_missing_tidy <- function(df,
 
 
 # Recent chunk data.table --------------------------------------------------
-keep_recent_chunk <- function(dt, country_col = "country", value_col = "value", 
-                              year_col = "year", k = 2) {
+
+remove_before_large_gap <- function(dt,
+                                    value_col = "value",
+                                    year_col  = "year",
+                                    k         = 3) {
   
   dt <- as.data.table(dt)
+  setorderv(dt, year_col)
   
-  # Rename columns for internal consistency
-  setnames(dt, c(country_col, value_col, year_col),
-           c("country", "value", "year"))
+  v <- dt[[value_col]]
+  n <- length(v)
+  is_na <- is.na(v)
   
-  result <- dt[, {
+  run_id <- rleid(is_na)
+  
+  cutoff_positions <- c()
+  
+  # Find all large gaps
+  for (id in unique(run_id[is_na])) {
+    idx <- which(run_id == id)
     
-    # RLE id of missing vs non-missing blocks
-    r <- rleid(is.na(value))
-    
-    # Identify block IDs
-    blocks <- split(.SD, r)
-    block_ids <- sort(unique(r))
-    
-    # Last NON-missing block ID
-    last_non_missing_block_id <- max(block_ids[sapply(blocks, function(x) any(!is.na(x$value)))])
-    
-    # Previous block
-    previous_block_id <- last_non_missing_block_id - 1
-    
-    # Compute gap length (only if previous block is missing)
-    gap_len <- if (previous_block_id > 0 && all(is.na(.SD$value[r == previous_block_id]))) {
-      sum(r == previous_block_id)
-    } else {
-      0
+    if (length(idx) >= k) {
+      last_na <- max(idx)
+      next_pos <- which(!is_na & seq_len(n) > last_na)
+      
+      if (length(next_pos) > 0) {
+        cutoff_positions <- c(cutoff_positions, min(next_pos))
+      }
     }
-    
-    # Apply rule: If gap >= k → keep only last non-missing block
-    if (gap_len >= k) {
-      temp <- copy(.SD)
-      temp$value[r != last_non_missing_block_id] <- NA
-      temp
-    } else {
-      .SD
-    }
-    
-  }, by = country]
+  }
   
-  # Rename back to original names
-  setnames(result, c("country", "value", "year"),
-           c(country_col, value_col, year_col))
+  # If no large gaps, return unchanged
+  if (length(cutoff_positions) == 0) return(dt)
   
-  return(result[])
+  # We remove everything before the **largest** cutoff
+  final_cutoff <- max(cutoff_positions)
+  
+  v[seq_len(final_cutoff - 1)] <- NA
+  
+  dt[[value_col]] <- v
+  dt
 }
 
 
@@ -196,9 +190,12 @@ df_test <- data.frame(
   )
 )
 # Testing the functions ---------------------------------------------------
-keep_recent_chunk(df, country_col = "country", 
-                  value_col = "value",year_col = "year", k = 3)
+dt <- data.table(
+  year   = 2000:2011,
+  value  = c(1,2,3,NA,NA,NA,7,NA,NA,10,11,NA)
+)
 
+remove_before_large_gap(dt, k = 3)
 
 #----------------------------------------------------------------
  remove_country_if_recent_missing_dt(
