@@ -85,6 +85,22 @@ if(elem) { elem.click(); } else { console.log('Final button not found'); }
 ", final_button_xpath))
 Sys.sleep(10)  # wait for table to render
 
+
+# --- 8. Click Download CSV button ---
+download_csv_xpath <- "/html/body/app-root/div/app-ips-search-result/w-step/div/div/div[2]/f-facet/w-table-commands/ul/li[6]/a/span"
+
+b$Runtime$evaluate(sprintf("
+var elem = document.evaluate('%s', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+if(elem) { 
+    elem.click(); 
+    console.log('CSV Download triggered'); 
+} else { 
+    console.log('CSV download button not found'); 
+}
+", download_csv_xpath))
+
+Sys.sleep(5)   # allow time for download
+
 # --- 8. Extract the table ---
 table_xpath <- '//*[@id="pr_id_3"]/div'
 
