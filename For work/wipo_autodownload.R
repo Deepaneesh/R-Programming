@@ -115,3 +115,5 @@ tbl <- page %>% html_node("table") %>% html_table(fill = TRUE)
 
 tbl <- tbl[,-1]
 
+tbl %>% View()
+
